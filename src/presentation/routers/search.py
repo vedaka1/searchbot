@@ -59,12 +59,12 @@ async def get_employe(
     if category == "Сотрудник":
         async with container() as di_container:
             get_employe = await di_container.get(GetEmploye)
-            result = get_employe(message.text)
+            result = await get_employe(message.text)
             await state.clear()
             await message.answer(result, parse_mode="MarkDownV2")
     if category == "Документ":
         async with container() as di_container:
             get_employe = await di_container.get(GetDocument)
-            result = get_employe(message.text)
+            result = await get_employe(message.text)
             await state.clear()
             await message.answer(result, parse_mode="MarkDownV2")

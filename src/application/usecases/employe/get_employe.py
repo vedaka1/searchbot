@@ -1,51 +1,47 @@
 from dataclasses import dataclass, field
-from typing import Any
-
-from openpyxl import Workbook, load_workbook
 
 from application.common.workbook import EmployeWorkbook
 from domain.common.response import Response
+from domain.employees.repository import BaseEmployeRepository
 
 
 @dataclass
 class GetEmploye:
-    wb: EmployeWorkbook
-    _ignored_symbols: list = field(
-        default=[None, "", "@", "-", "9999999"],
-        init=False,
-    )
+    employe_repository: BaseEmployeRepository
 
-    def __call__(self, search_prompt: str) -> str:
-
-        ws = self.wb.active
+    async def __call__(self, search_prompt: str) -> str:
+        employes = await self.employe_repository.get_by_search_prompt(
+            search_prompt=search_prompt
+        )
+        if employes is None:
+            return "Записей не найдено"
         result = ""
-        search_columns = ws["N":"Q"]
-        try:
-            for cell in tuple(zip(search_columns[0], search_columns[1])):
-                if (
-                    search_prompt.lower() in str(cell[0].value).lower()
-                    or search_prompt.lower() in str(cell[1].value).lower()
-                ):
-                    result += "\n"
-                    row = ws[cell[0].row]
-                    cells_to_parse = (2, 4, 7)
-                    for cell_number in cells_to_parse:
-                        if row[cell_number].value not in self._ignored_symbols:
-                            result += f"{row[cell_number].value}\n"
+        separator = "--------\n"
+        for employe in employes:
+            result += separator
+            for atr in employe.__dict__:
+                if employe.__dict__[atr] in (None, "", "@", "9999999"):
+                    employe.__dict__[atr] = ""
 
-                    position = "*Должность*: {0}".format(row[16].value)
-                    fullname = "*ФИО*: {0} {1}".format(row[13].value, row[14].value)
-                    number = " *Номер*: ({0}){1}".format(row[18].value, row[19].value)
-                    result += "{0}\n{1}\n{2}".format(position, fullname, number)
+            workplace = ""
+            for place in (
+                employe.lvl_1_office,
+                employe.lvl_2_management,
+                employe.lvl_3_department,
+                employe.lvl_4_reserve,
+            ):
+                if place:
+                    workplace += place + "\n"
+            result += workplace
 
-        except Exception as e:
-            print(e)
-            return "Записей не найдено"
+            result += "{0}\n*ФИО:* {1} {2}\n*Номер:* ({3}){4}\n".format(
+                employe.position,
+                employe.lastname,
+                employe.firstname_patronymic,
+                int(employe.phone_code),
+                employe.phone_number,
+            )
+            if employe.email:
+                result += "*Почта:* {0}\n".format(employe.email)
 
-        result = Response(result).value
-        if not result:
-            return "Записей не найдено"
-
-        if len(result) > 4000:
-            return result[:4000] + "\.\.\."
-        return result
+        return Response(result).value

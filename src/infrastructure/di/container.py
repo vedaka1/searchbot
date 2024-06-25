@@ -1,5 +1,6 @@
 import logging
 from functools import lru_cache
+from typing import AsyncGenerator
 
 from dishka import (
     AsyncContainer,
@@ -10,11 +11,20 @@ from dishka import (
     provide,
 )
 from openpyxl import load_workbook
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.common.workbook import DocumentWorkbook, EmployeWorkbook
+from application.usecases.admin import *
 from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.get_employe import GetEmploye
+from domain.admins.repository import BaseAdminRepository
+from domain.documents.repository import BaseDocumentRepository
+from domain.employees.repository import BaseEmployeRepository
 from infrastructure.config import settings
+from infrastructure.persistence.main import create_engine, create_session_factory
+from infrastructure.persistence.repositories.admin import AdminRepository
+from infrastructure.persistence.repositories.document import DocumentRepository
+from infrastructure.persistence.repositories.employe import EmployeRepository
 
 
 @lru_cache(1)
@@ -27,30 +37,50 @@ def init_logger() -> logging.Logger:
     )
 
 
+class SettingsProvider(Provider):
+    @provide(scope=Scope.APP)
+    def engine(self) -> AsyncEngine:
+        return create_engine()
+
+    @provide(scope=Scope.APP)
+    def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
+        return create_session_factory(engine)
+
+
+class DatabaseConfigurationProvider(Provider):
+    @provide(scope=Scope.REQUEST, provides=AsyncSession)
+    async def provide_db_connection(
+        self, session_factory: async_sessionmaker
+    ) -> AsyncGenerator[AsyncSession, None]:
+        session = session_factory()
+        yield session
+        await session.close()
+
+
+class DatabaseAdaptersProvider(Provider):
+    scope = Scope.REQUEST
+
+    employe_repository = provide(EmployeRepository, provides=BaseEmployeRepository)
+    document_repository = provide(DocumentRepository, provides=BaseDocumentRepository)
+    admin_repository = provide(AdminRepository, provides=BaseAdminRepository)
+
+
 class UseCasesProvider(Provider):
-    scope = Scope.APP
+    scope = Scope.REQUEST
 
     get_employe = provide(GetEmploye)
     get_document = provide(GetDocument)
-
-
-class WorkbookProvider(Provider):
-    @provide(scope=Scope.APP)
-    def employe_workbook(self) -> EmployeWorkbook:
-        return load_workbook(
-            "infrastructure/excel/ПФ_Телефонный_справочник_Телефонный_справочник_без_доп_символов.xlsx"
-        )
-
-    @provide(scope=Scope.APP)
-    def document_workbook(self) -> DocumentWorkbook:
-        return load_workbook(
-            "infrastructure/excel/ПФ_Справочник_документов_Справочник_документов_АгПечСМИ15.xlsx"
-        )
+    get_admin_by_id = provide(GetAdminByTelegramId)
+    get_admins = provide(GetAllAdmins)
+    delete_admin = provide(DeleteAdmin)
+    create_admin = provide(CreateAdmin)
 
 
 @lru_cache(1)
 def get_container() -> AsyncContainer:
     return make_async_container(
-        WorkbookProvider(),
         UseCasesProvider(),
+        DatabaseAdaptersProvider(),
+        DatabaseConfigurationProvider(),
+        SettingsProvider(),
     )
