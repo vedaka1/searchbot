@@ -27,7 +27,7 @@ async def start(message: types.Message):
 
 
 @search_router.message(filters.Command("search"))
-async def search(message: types.Message, state: FSMContext)
+async def search(message: types.Message, state: FSMContext):
     await state.clear()
     await state.set_state(Search.category)
     await message.answer(
