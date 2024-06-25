@@ -25,12 +25,17 @@ class DocumentRepository(BaseDocumentRepository):
         query = text(
             """
             SELECT * FROM documents
-            WHERE documents.credentials ILIKE '%:search_prompt%' or documents.name ILIKE '%:search_prompt%'
+            WHERE documents.credentials ILIKE :search_prompt or documents.title ILIKE :search_prompt
             LIMIT :limit OFFSET :offset;
             """
         )
         result = await self.session.execute(
-            query, {"search_prompt": search_prompt, "limit": limit, "offset": offset}
+            query,
+            {
+                "search_prompt": str("%" + search_prompt + "%"),
+                "limit": limit,
+                "offset": offset,
+            },
         )
         result = result.mappings().all()
         return [Document(**data) for data in result]

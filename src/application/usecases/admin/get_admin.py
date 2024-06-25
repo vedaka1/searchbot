@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from src.domain.admins.admin import Admin
-from src.domain.admins.repository import BaseAdminRepository
+from domain.admins.admin import Admin
+from domain.admins.repository import BaseAdminRepository
 
 
 @dataclass

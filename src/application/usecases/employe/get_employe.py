@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-from application.common.workbook import EmployeWorkbook
 from domain.common.response import Response
 from domain.employees.repository import BaseEmployeRepository
 
@@ -15,10 +14,10 @@ class GetEmploye:
         )
         if employes is None:
             return "Записей не найдено"
-        result = ""
-        separator = "--------\n"
-        for employe in employes:
-            result += separator
+        result = "Найдено {0} записей\n".format(len(employes))
+        separator = "<-------->\n"
+        for key, employe in enumerate(employes):
+            employe_body = separator
             for atr in employe.__dict__:
                 if employe.__dict__[atr] in (None, "", "@", "9999999"):
                     employe.__dict__[atr] = ""
@@ -32,16 +31,27 @@ class GetEmploye:
             ):
                 if place:
                     workplace += place + "\n"
-            result += workplace
+            employe_body += workplace
 
-            result += "{0}\n*ФИО:* {1} {2}\n*Номер:* ({3}){4}\n".format(
-                employe.position,
-                employe.lastname,
-                employe.firstname_patronymic,
-                int(employe.phone_code),
-                employe.phone_number,
+            employe_body += (
+                "*Должность:* {0}\n*ФИО:* {1} {2}\n*Номер:* ({3}){4}\n".format(
+                    employe.position,
+                    employe.lastname,
+                    employe.firstname_patronymic,
+                    int(employe.phone_code),
+                    employe.phone_number,
+                )
             )
             if employe.email:
-                result += "*Почта:* {0}\n".format(employe.email)
+                employe_body += "*Почта:* {0}\n".format(employe.email)
 
-        return Response(result).value
+            employe_body = Response(employe_body).value
+            if len(result) + len(employe_body) > 4000:
+                result += "\nОтображено записей {0}/{1}".format(key + 1, len(employes))
+                return result
+            result += employe_body
+
+        if not result:
+            return "Записей не найдено"
+
+        return result

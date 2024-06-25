@@ -8,7 +8,7 @@ from domain.admins.repository import BaseAdminRepository
 class CreateAdmin:
     admin_repository: BaseAdminRepository
 
-    async def __call__(self, user_id: int, username: str) -> UserDB:
+    async def __call__(self, user_id: int, username: str) -> Admin:
         user_exists = await self.admin_repository.get_by_telegram_id(user_id)
         if user_exists:
             return "Пользователь уже администратор"
