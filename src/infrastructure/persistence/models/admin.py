@@ -1,5 +1,3 @@
-import uuid
-
 from sqlalchemy.orm import Mapped, mapped_column
 
 from infrastructure.persistence.models.base import Base

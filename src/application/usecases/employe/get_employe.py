@@ -6,12 +6,19 @@ from domain.employees.repository import BaseEmployeRepository
 
 @dataclass
 class GetEmploye:
+    """A class that returns all employees matching the search prompt"""
+
     employe_repository: BaseEmployeRepository
 
     async def __call__(self, search_prompt: str) -> str:
-        employes = await self.employe_repository.get_by_search_prompt(
-            search_prompt=search_prompt, limit=100
-        )
+        try:
+            employes = await self.employe_repository.get_by_search_prompt(
+                search_prompt=search_prompt, limit=100
+            )
+        except Exception as e:
+            print(e)
+            return "Возникла ошибка"
+
         if not employes:
             return "Записей о сотрудниках не найдено"
         result = "Найдено записей: {0}\n".format(len(employes))

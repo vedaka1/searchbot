@@ -89,7 +89,13 @@ async def search(message: types.Message, bot: Bot, container: AsyncContainer):
         head_admin: Admin = await get_head_admin()
     await bot.send_message(
         chat_id=head_admin.telegram_id,
-        text=f"Пользователь запросил права администратора\n\n*ID:* {message.from_user.id}\n*sername:* {message.from_user.username}\n*firstname:* {message.from_user.first_name}\n*lastname:* {message.from_user.last_name}",
+        text=str(
+            "Пользователь запросил права администратора\n\n"
+            + f"*ID:* {message.from_user.id}\n"
+            + f"*username:* {message.from_user.username}\n"
+            + f"*firstname:* {message.from_user.first_name}\n"
+            + f"+*lastname:* {message.from_user.last_name}"
+        ),
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=request_access_keyboard(message.from_user.id)
         ),

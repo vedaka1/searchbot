@@ -7,6 +7,8 @@ from domain.admins.admin import Admin
 
 @dataclass
 class BaseAdminRepository(ABC):
+    """An abstract admin repository for their implementations"""
+
     @abstractmethod
     async def create(self, user: Admin) -> None: ...
 

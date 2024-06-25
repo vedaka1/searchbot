@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Response:
+    """A class that receives text and escapes all unwanted symbols in it"""
+
     value: str
     _symbols_to_ignore: str = field(default=r"_*[]()~`>#+-=|{}.!", init=False)
 

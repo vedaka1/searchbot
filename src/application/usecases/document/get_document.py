@@ -6,13 +6,19 @@ from domain.documents.repository import BaseDocumentRepository
 
 @dataclass
 class GetDocument:
+    """A class that returns all documents matching the search prompt"""
+
     document_repository: BaseDocumentRepository
 
     async def __call__(self, search_prompt: str) -> str:
-        documents = await self.document_repository.get_by_search_prompt(
-            search_prompt=search_prompt, limit=100
-        )
-        print(documents)
+        try:
+            documents = await self.document_repository.get_by_search_prompt(
+                search_prompt=search_prompt, limit=100
+            )
+        except Exception as e:
+            print(e)
+            return "Возникла ошибка"
+
         if not documents:
             return "Записей о документах не найдено"
         result = "Найдено записей: {0}\n".format(len(documents))
