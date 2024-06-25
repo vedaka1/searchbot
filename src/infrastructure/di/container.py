@@ -3,7 +3,6 @@ from functools import lru_cache
 from typing import AsyncGenerator
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
-from openpyxl import load_workbook
 from sqlalchemy import Engine
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
@@ -16,7 +15,6 @@ from application.usecases.employe.get_employe import GetEmploye
 from domain.admins.repository import BaseAdminRepository
 from domain.documents.repository import BaseDocumentRepository
 from domain.employees.repository import BaseEmployeRepository
-from infrastructure.config import settings
 from infrastructure.persistence.main import (
     create_session_factory,
     get_async_engine,

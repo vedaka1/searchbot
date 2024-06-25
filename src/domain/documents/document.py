@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 @dataclass
 class Document:
+    """The domain model of the document"""
+
     index: int
     id: int
     department: str

@@ -6,6 +6,8 @@ from domain.documents.document import Document
 
 @dataclass
 class BaseDocumentRepository(ABC):
+    """An abstract document repository for their implementations"""
+
     @abstractmethod
     async def create(self) -> None: ...
 

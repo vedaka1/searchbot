@@ -1,8 +1,7 @@
-from aiogram import Bot, F, Router, filters, types
+from aiogram import F, Router, filters, types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from dishka import AsyncContainer
-from openpyxl import load_workbook
 
 from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.get_employe import GetEmploye
@@ -28,7 +27,8 @@ async def start(message: types.Message):
 
 
 @search_router.message(filters.Command("search"))
-async def search(message: types.Message, state: FSMContext):
+async def search(message: types.Message, state: FSMContext)
+    await state.clear()
     await state.set_state(Search.category)
     await message.answer(
         "Выберите категорию поиска:",

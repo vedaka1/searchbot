@@ -6,6 +6,8 @@ from domain.employees.employe import Employe
 
 @dataclass
 class BaseEmployeRepository(ABC):
+    """An abstract employe repository for their implementations"""
+
     @abstractmethod
     async def create(self) -> None: ...
 
