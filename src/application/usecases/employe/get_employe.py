@@ -10,11 +10,11 @@ class GetEmploye:
 
     async def __call__(self, search_prompt: str) -> str:
         employes = await self.employe_repository.get_by_search_prompt(
-            search_prompt=search_prompt
+            search_prompt=search_prompt, limit=100
         )
-        if employes is None:
-            return "Записей не найдено"
-        result = "Найдено {0} записей\n".format(len(employes))
+        if not employes:
+            return "Записей о сотрудниках не найдено"
+        result = "Найдено записей: {0}\n".format(len(employes))
         separator = "<-------->\n"
         for key, employe in enumerate(employes):
             employe_body = separator

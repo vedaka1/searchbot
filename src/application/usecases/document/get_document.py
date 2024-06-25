@@ -10,11 +10,12 @@ class GetDocument:
 
     async def __call__(self, search_prompt: str) -> str:
         documents = await self.document_repository.get_by_search_prompt(
-            search_prompt=search_prompt
+            search_prompt=search_prompt, limit=100
         )
-        if documents is None:
-            return "Записей не найдено"
-        result = "Найдено {0} записей\n".format(len(documents))
+        print(documents)
+        if not documents:
+            return "Записей о документах не найдено"
+        result = "Найдено записей: {0}\n".format(len(documents))
         separator = "<-------->\n"
         for key, document in enumerate(documents):
             document_body = separator

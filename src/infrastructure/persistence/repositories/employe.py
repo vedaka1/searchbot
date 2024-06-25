@@ -22,23 +22,27 @@ class EmployeRepository(BaseEmployeRepository):
     async def get_by_search_prompt(
         self, search_prompt: str, limit: int = 10, offset: int = 0
     ) -> list[Employe]:
-        query = text(
-            """
-            SELECT * FROM employees
-            WHERE employees.lastname ILIKE :search_prompt or employees.firstname_patronymic ILIKE :search_prompt
-            LIMIT :limit OFFSET :offset;
-            """
-        )
-        result = await self.session.execute(
-            query,
-            {
-                "search_prompt": str("%" + search_prompt + "%"),
-                "limit": limit,
-                "offset": offset,
-            },
-        )
-        result = result.mappings().all()
-        return [Employe(**data) for data in result]
+        try:
+            query = text(
+                """
+                SELECT * FROM employees
+                WHERE employees.lastname ILIKE :search_prompt or employees.firstname_patronymic ILIKE :search_prompt
+                LIMIT :limit OFFSET :offset;
+                """
+            )
+            result = await self.session.execute(
+                query,
+                {
+                    "search_prompt": str("%" + search_prompt + "%"),
+                    "limit": limit,
+                    "offset": offset,
+                },
+            )
+            result = result.mappings().all()
+            return [Employe(**data) for data in result]
+        except Exception as e:
+            print(e)
+            return None
 
     async def get_by_id(self, id: int) -> None:
         pass

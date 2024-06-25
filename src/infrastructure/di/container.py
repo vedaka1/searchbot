@@ -4,16 +4,24 @@ from typing import AsyncGenerator
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from openpyxl import load_workbook
+from sqlalchemy import Engine
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.usecases.admin import *
+from application.usecases.admin.get_admin import GetHeadAdmin
+from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.document.get_document import GetDocument
+from application.usecases.employe.create_employe import CreateAllEmployees
 from application.usecases.employe.get_employe import GetEmploye
 from domain.admins.repository import BaseAdminRepository
 from domain.documents.repository import BaseDocumentRepository
 from domain.employees.repository import BaseEmployeRepository
 from infrastructure.config import settings
-from infrastructure.persistence.main import create_engine, create_session_factory
+from infrastructure.persistence.main import (
+    create_session_factory,
+    get_async_engine,
+    get_sync_engine,
+)
 from infrastructure.persistence.repositories.admin import AdminRepository
 from infrastructure.persistence.repositories.document import DocumentRepository
 from infrastructure.persistence.repositories.employe import EmployeRepository
@@ -31,8 +39,12 @@ def init_logger() -> logging.Logger:
 
 class SettingsProvider(Provider):
     @provide(scope=Scope.APP)
-    def engine(self) -> AsyncEngine:
-        return create_engine()
+    def async_engine(self) -> AsyncEngine:
+        return get_async_engine()
+
+    @provide(scope=Scope.APP)
+    def sync_engine(self) -> Engine:
+        return get_sync_engine()
 
     @provide(scope=Scope.APP)
     def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
@@ -66,6 +78,9 @@ class UseCasesProvider(Provider):
     get_admins = provide(GetAllAdmins)
     delete_admin = provide(DeleteAdmin)
     create_admin = provide(CreateAdmin)
+    create_employees = provide(CreateAllEmployees)
+    create_documents = provide(CreateAllDocuments)
+    get_head_admin = provide(GetHeadAdmin)
 
 
 @lru_cache(1)

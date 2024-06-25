@@ -1,6 +1,6 @@
 from typing import AsyncIterable
 
-from sqlalchemy import MetaData
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -11,8 +11,12 @@ from sqlalchemy.ext.asyncio import (
 from infrastructure.config import settings
 
 
-def create_engine() -> AsyncEngine:
+def get_async_engine() -> AsyncEngine:
     return create_async_engine(settings.ASYNC_DB_URL, echo=False)
+
+
+def get_sync_engine() -> Engine:
+    return create_engine(settings.SYNC_DB_URL, echo=False)
 
 
 def create_session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:

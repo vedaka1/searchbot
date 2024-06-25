@@ -17,16 +17,16 @@ class AdminRepository(BaseAdminRepository):
     async def create(self, user: Admin) -> None:
         query = text(
             """
-                INSERT INTO admins (id, telegram_id, username)
-                VALUES (:id, :telegram_id, :username)
+                INSERT INTO admins (telegram_id, username, role)
+                VALUES (:telegram_id, :username, :role)
             """
         )
         await self.session.execute(
             query,
             {
-                "id": user.id,
                 "telegram_id": user.telegram_id,
                 "username": user.username,
+                "role": user.role,
             },
         )
         return None
@@ -46,18 +46,9 @@ class AdminRepository(BaseAdminRepository):
         )
         return None
 
-    async def get_by_telegram_id(self, telegram_id: int) -> Admin:
+    async def get_by_id(self, telegram_id: int) -> Admin:
         query = text("""SELECT * FROM admins WHERE telegram_id = :value;""")
         result = await self.session.execute(query, {"value": telegram_id})
-        result = result.mappings().one_or_none()
-        if result is None:
-            return None
-
-        return Admin(**result)
-
-    async def get_by_id(self, user_id: uuid.UUID) -> Admin:
-        query = text("""SELECT * FROM admins WHERE id = :value;""")
-        result = await self.session.execute(query, {"value": user_id})
         result = result.mappings().one_or_none()
         if result is None:
             return None
@@ -69,3 +60,17 @@ class AdminRepository(BaseAdminRepository):
         result = await self.session.execute(query, {"limit": limit, "offset": offset})
         result = result.mappings().all()
         return [Admin(**data) for data in result]
+
+    async def update(self, user: Admin) -> None:
+        query = text(
+            """
+                UPDATE admins
+                SET role = :role
+                WHERE telegram_id = :telegram_id;
+            """
+        )
+        await self.session.execute(
+            query,
+            {"telegram_id": user.telegram_id, "role": user.role},
+        )
+        return None

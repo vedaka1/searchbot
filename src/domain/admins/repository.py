@@ -14,9 +14,6 @@ class BaseAdminRepository(ABC):
     async def delete(self, telegram_id: int) -> None: ...
 
     @abstractmethod
-    async def get_by_telegram_id(self, telegram_id: int) -> Admin: ...
-
-    @abstractmethod
     async def get_by_id(self, user_id: uuid.UUID) -> Admin: ...
 
     @abstractmethod

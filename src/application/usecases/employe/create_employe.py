@@ -2,10 +2,12 @@ from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd
+from sqlalchemy import Engine
 
 
 @dataclass
 class CreateAllEmployees:
+    engine: Engine
 
     def __call__(self, file) -> None:
         df = pd.read_excel(file)
@@ -35,4 +37,12 @@ class CreateAllEmployees:
             "fax",
             "email",
         ]
-        df.columns = employe_columns
+        try:
+            df.columns = employe_columns
+            df.to_sql(name="employees", con=self.engine, if_exists="replace")
+
+        except ValueError:
+            return "Количество столбцов в файле не совпадает со столбцами в базе данных"
+        except Exception as e:
+            print(e)
+            return "Не удалось обновить информацию"

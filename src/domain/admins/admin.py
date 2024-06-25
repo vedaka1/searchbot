@@ -4,14 +4,10 @@ from dataclasses import dataclass
 
 @dataclass
 class Admin:
-    id: uuid.UUID
     telegram_id: int
     username: str
+    role: str
 
     @staticmethod
-    def create(telegram_id: int, username: str) -> "Admin":
-        return Admin(
-            id=uuid.uuid4(),
-            telegram_id=telegram_id,
-            username=username,
-        )
+    def create(telegram_id: int, username: str, role: str = "admin") -> "Admin":
+        return Admin(telegram_id=telegram_id, username=username, role=role)
