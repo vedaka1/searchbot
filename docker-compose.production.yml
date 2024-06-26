@@ -4,24 +4,27 @@ name: searchbot
 
 services:
 
-  tgbot-service:
-    container_name: search-tgbot
-    hostname: tgbot
+  searchbot:
+    container_name: searchbot
+    hostname: searchbot
     build: ./
+    depends_on:
+      searchbot_db:
+        condition: service_healthy
     env_file:
       - .env
     networks:
       - internal
     command: sh -c "alembic upgrade head && python main.py"
 
-  postgres:
-    container_name: search-postgres
+  searchbot_db:
+    container_name: searchbot_db
     image: postgres:15.1
-    hostname: postgres
+    hostname: searchbot_db
     env_file:
       - .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - searchbot_data:/var/lib/postgresql/data/
     networks:
       - internal
     expose:
@@ -34,7 +37,7 @@ services:
       start_period: 10s
 
 volumes:
-  postgres_data:
+  searchbot_data:
 
 networks:
   internal:
