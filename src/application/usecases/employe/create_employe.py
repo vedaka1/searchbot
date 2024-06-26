@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from logging import Logger
-from typing import Any
 
 import pandas as pd
 from sqlalchemy import Engine

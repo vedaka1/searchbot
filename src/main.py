@@ -18,19 +18,6 @@ def init_routers(dp: Dispatcher):
     dp.include_router(search_router)
 
 
-async def init_head_admin(conn):
-    try:
-        await conn.execute(
-            text(
-                "INSERT INTO admins (telegram_id, role) VALUES ({0}, 'head')".format(
-                    settings.HEAD_ADMIN_TG_ID
-                )
-            )
-        )
-    except Exception as e:
-        print(e)
-
-
 async def main():
     init_logger()
     bot = Bot(
@@ -41,11 +28,10 @@ async def main():
     init_routers(dp)
     container = get_container()
     dp["container"] = container
-    engine = await container.get(AsyncEngine)
-    async with engine.begin() as conn:
-        # await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-        await init_head_admin(conn)
+    # engine = await container.get(AsyncEngine)
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.drop_all)
+    #     await conn.run_sync(Base.metadata.create_all)
     await dp.start_polling(bot)
 
 

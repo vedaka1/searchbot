@@ -1,4 +1,4 @@
-FROM dockerhub.timeweb.cloud/python:3.12.1-slim-bullseye
+FROM python:3.12.1-slim-bullseye
 
 WORKDIR /app
 
@@ -14,5 +14,3 @@ RUN poetry install --no-root --no-interaction --no-ansi
 
 COPY src/ .
 COPY .env .
-
-CMD [ "python", "main.py" ]
