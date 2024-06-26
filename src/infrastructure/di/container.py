@@ -6,24 +6,25 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from sqlalchemy import Engine
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
+from application.common.admin import HeadAdminID
 from application.common.transaction import BaseTransactionManager
-from application.usecases.admin import *
-from application.usecases.admin.get_admin import GetHeadAdmin
 from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.create_employe import CreateAllEmployees
 from application.usecases.employe.get_employe import GetEmploye
-from domain.admins.repository import BaseAdminRepository
+from application.usecases.users import *
 from domain.documents.repository import BaseDocumentRepository
 from domain.employees.repository import BaseEmployeRepository
+from domain.users.repository import BaseUserRepository
+from infrastructure.config import settings
 from infrastructure.persistence.main import (
     create_session_factory,
     get_async_engine,
     get_sync_engine,
 )
-from infrastructure.persistence.repositories.admin import AdminRepository
 from infrastructure.persistence.repositories.document import DocumentRepository
 from infrastructure.persistence.repositories.employe import EmployeRepository
+from infrastructure.persistence.repositories.user import UserRepository
 from infrastructure.persistence.transaction import TransactionManager
 
 
@@ -54,6 +55,10 @@ class SettingsProvider(Provider):
     def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
         return create_session_factory(engine)
 
+    @provide(scope=Scope.APP)
+    def head_admin(self) -> HeadAdminID:
+        return settings.HEAD_ADMIN_TG_ID
+
 
 class DatabaseConfigurationProvider(Provider):
     @provide(scope=Scope.REQUEST, provides=AsyncSession)
@@ -70,7 +75,7 @@ class DatabaseAdaptersProvider(Provider):
 
     employe_repository = provide(EmployeRepository, provides=BaseEmployeRepository)
     document_repository = provide(DocumentRepository, provides=BaseDocumentRepository)
-    admin_repository = provide(AdminRepository, provides=BaseAdminRepository)
+    user_repository = provide(UserRepository, provides=BaseUserRepository)
     transaction_manager = provide(TransactionManager, provides=BaseTransactionManager)
 
 
@@ -79,13 +84,14 @@ class UseCasesProvider(Provider):
 
     get_employe = provide(GetEmploye)
     get_document = provide(GetDocument)
-    get_admin_by_id = provide(GetAdminByTelegramId)
-    get_admins = provide(GetAllAdmins)
-    delete_admin = provide(DeleteAdmin)
-    create_admin = provide(CreateAdmin)
+    get_userr_by_id = provide(GetAdminByTelegramId)
+    get_userrs = provide(GetAllUsers)
+    delete_user = provide(DeleteUser)
+    create_user = provide(CreateUser)
+    update_user = provide(UpdateUserRole)
     create_employees = provide(CreateAllEmployees)
     create_documents = provide(CreateAllDocuments)
-    get_head_admin = provide(GetHeadAdmin)
+    get_head_admin = provide(GetHeadAdminId)
 
 
 @lru_cache(1)

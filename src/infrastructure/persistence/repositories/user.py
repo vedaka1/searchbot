@@ -3,20 +3,20 @@ from dataclasses import dataclass
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from domain.admins.admin import Admin
-from domain.admins.repository import BaseAdminRepository
+from domain.users.repository import BaseUserRepository
+from domain.users.user import User
 
 
 @dataclass
-class AdminRepository(BaseAdminRepository):
+class UserRepository(BaseUserRepository):
 
     __slots__ = ("session",)
     session: AsyncSession
 
-    async def create(self, user: Admin) -> None:
+    async def create(self, user: User) -> None:
         query = text(
             """
-                INSERT INTO admins (telegram_id, username, role)
+                INSERT INTO users (telegram_id, username, role)
                 VALUES (:telegram_id, :username, :role)
             """
         )
@@ -33,7 +33,7 @@ class AdminRepository(BaseAdminRepository):
     async def delete(self, telegram_id: int) -> None:
         query = text(
             """
-                DELETE FROM admins
+                DELETE FROM users
                 WHERE telegram_id = :value;
                 """
         )
@@ -45,25 +45,36 @@ class AdminRepository(BaseAdminRepository):
         )
         return None
 
-    async def get_by_id(self, telegram_id: int) -> Admin:
-        query = text("""SELECT * FROM admins WHERE telegram_id = :value;""")
+    async def get_by_id(self, telegram_id: int) -> User | None:
+        query = text("""SELECT * FROM users WHERE telegram_id = :value;""")
         result = await self.session.execute(query, {"value": telegram_id})
         result = result.mappings().one_or_none()
         if result is None:
             return None
 
-        return Admin(**result)
+        return User(**result)
 
-    async def get_all(self, limit: int = 10, offset: int = 0) -> list[Admin]:
-        query = text("""SELECT * FROM admins LIMIT :limit OFFSET :offset;""")
+    async def get_admin_by_id(self, telegram_id: int) -> User | None:
+        query = text(
+            """SELECT * FROM users WHERE telegram_id = :value and role = 'admin';"""
+        )
+        result = await self.session.execute(query, {"value": telegram_id})
+        result = result.mappings().one_or_none()
+        if result is None:
+            return None
+
+        return User(**result)
+
+    async def get_all(self, limit: int = 10, offset: int = 0) -> list[User]:
+        query = text("""SELECT * FROM users LIMIT :limit OFFSET :offset;""")
         result = await self.session.execute(query, {"limit": limit, "offset": offset})
         result = result.mappings().all()
-        return [Admin(**data) for data in result]
+        return [User(**data) for data in result]
 
-    async def update(self, user: Admin) -> None:
+    async def update_role(self, user: User) -> None:
         query = text(
             """
-                UPDATE admins
+                UPDATE users
                 SET role = :role
                 WHERE telegram_id = :telegram_id;
             """

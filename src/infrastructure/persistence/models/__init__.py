@@ -1,4 +1,4 @@
-from infrastructure.persistence.models.admin import AdminModel
 from infrastructure.persistence.models.base import Base
+from infrastructure.persistence.models.user import UserModel
 
-__all__ = ["Base", "AdminModel"]
+__all__ = ["Base", "UserModel"]

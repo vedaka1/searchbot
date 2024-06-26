@@ -5,7 +5,7 @@ from dishka import AsyncContainer
 
 from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.employe.create_employe import CreateAllEmployees
-from presentation.common.keyboards import category_keyboard, request_access_keyboard
+from presentation.common.keyboards import category_keyboard
 from presentation.middlewares.admin import AdminMiddleware
 from presentation.texts.text import text
 
@@ -20,7 +20,7 @@ class UpdateFile(StatesGroup):
 
 @admin_router.message(filters.Command("info"))
 async def cmd_info(message: types.Message):
-    await message.answer(text["admin"])
+    await message.answer(text["info"])
 
 
 @admin_router.message(filters.Command("update_info"))

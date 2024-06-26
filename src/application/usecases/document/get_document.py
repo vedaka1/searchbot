@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from domain.common.response import Response
 from domain.documents.repository import BaseDocumentRepository

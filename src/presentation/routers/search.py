@@ -5,11 +5,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from dishka import AsyncContainer
 
-from application.usecases.admin.create_admin import CreateAdmin
-from application.usecases.admin.get_admin import GetHeadAdmin
 from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.get_employe import GetEmploye
-from domain.admins.admin import Admin
+from application.usecases.users.create_user import CreateUser
+from application.usecases.users.get_user import GetHeadAdminId
+from application.usecases.users.update_user import UpdateUserRole
 from domain.common.response import Response
 from presentation.common.keyboards import category_keyboard, request_access_keyboard
 from presentation.texts.text import text
@@ -29,7 +29,10 @@ async def search_error(message: types.Message) -> None:
 
 
 @search_router.message(filters.Command("start"))
-async def cmd_start(message: types.Message):
+async def cmd_start(message: types.Message, container: AsyncContainer):
+    async with container() as di_container:
+        create_user = await di_container.get(CreateUser)
+        await create_user(message.from_user.id, message.from_user.username)
     await message.answer(text["start"])
 
 
@@ -81,14 +84,16 @@ async def cmd_request_access(
     message: types.Message, bot: Bot, container: AsyncContainer
 ):
     async with container() as di_container:
-        get_head_admin = await di_container.get(GetHeadAdmin)
-        head_admin: Admin = await get_head_admin()
+        get_head_admin = await di_container.get(GetHeadAdminId)
+        create_user = await di_container.get(CreateUser)
+        await create_user(message.from_user.id, message.from_user.username)
+        head_admin_id = await get_head_admin()
 
     text = Response(
         f"Пользователь запросил права администратора\n\n*ID:* {message.from_user.id}\n*username:* {message.from_user.username}"
     ).value
     await bot.send_message(
-        chat_id=head_admin.telegram_id,
+        chat_id=head_admin_id,
         text=text,
         reply_markup=types.InlineKeyboardMarkup(
             inline_keyboard=request_access_keyboard(message.from_user.id)
@@ -108,8 +113,8 @@ async def callback_request_access(
     from_user = callback.data.split("_")[2]
     if user_choice == "accept":
         async with container() as di_container:
-            create_admin = await di_container.get(CreateAdmin)
-            await create_admin(int(from_user))
+            update_user_role = await di_container.get(UpdateUserRole)
+            await update_user_role(user_id=int(from_user))
             await callback.message.delete()
             await bot.send_message(
                 chat_id=from_user, text="Ваш запрос на права администратора был одобрен"
