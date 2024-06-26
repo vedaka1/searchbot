@@ -3,11 +3,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from dishka import AsyncContainer
 
-from application.usecases.admin.create_admin import CreateAdmin
-from application.usecases.admin.get_admin import GetHeadAdmin
 from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.employe.create_employe import CreateAllEmployees
-from domain.admins.admin import Admin
 from presentation.common.keyboards import category_keyboard, request_access_keyboard
 from presentation.middlewares.admin import AdminMiddleware
 from presentation.texts.text import text
@@ -22,12 +19,12 @@ class UpdateFile(StatesGroup):
 
 
 @admin_router.message(filters.Command("info"))
-async def start(message: types.Message):
+async def cmd_info(message: types.Message):
     await message.answer(text["admin"])
 
 
 @admin_router.message(filters.Command("update_info"))
-async def search(message: types.Message, state: FSMContext):
+async def cmd_update_info(message: types.Message, state: FSMContext):
     await state.set_state(UpdateFile.category)
     await message.answer(
         "Выберите какую информацию нужно обновить",
@@ -36,7 +33,7 @@ async def search(message: types.Message, state: FSMContext):
 
 
 @admin_router.callback_query(UpdateFile.category, F.data.startswith("search_"))
-async def select_subscription_callback(
+async def callback_search(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
@@ -52,7 +49,7 @@ async def select_subscription_callback(
 
 
 @admin_router.message(UpdateFile.file)
-async def select_subscription_callback(
+async def upload_file(
     message: types.Message, state: FSMContext, bot: Bot, container: AsyncContainer
 ):
     file_id = message.document.file_id
@@ -76,52 +73,15 @@ async def select_subscription_callback(
             destination_path = "infrastructure/excel/documents_data.xlsx"
             await bot.download_file(file_path, destination=destination_path)
             update_employe = await di_container.get(CreateAllDocuments)
-            update_employe(destination_path)
+            try:
+                update_employe(destination_path)
+            except ValueError:
+                return await message.answer(
+                    "Количество столбцов в файле не совпадает со столбцами в базе данных"
+                )
+            except:
+                return await message.answer("Возникла ошибка")
+            finally:
+                await state.clear()
 
             await message.answer("Информация успешно обновлена")
-            await state.clear()
-
-
-@admin_router.message(filters.Command("request_access"))
-async def search(message: types.Message, bot: Bot, container: AsyncContainer):
-    async with container() as di_container:
-        get_head_admin = await di_container.get(GetHeadAdmin)
-        head_admin: Admin = await get_head_admin()
-    await bot.send_message(
-        chat_id=head_admin.telegram_id,
-        text=str(
-            "Пользователь запросил права администратора\n\n"
-            + f"*ID:* {message.from_user.id}\n"
-            + f"*username:* {message.from_user.username}\n"
-            + f"*firstname:* {message.from_user.first_name}\n"
-            + f"+*lastname:* {message.from_user.last_name}"
-        ),
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=request_access_keyboard(message.from_user.id)
-        ),
-        parse_mode="MarkDownV2",
-    )
-    await message.answer("Запрос отправлен")
-
-
-@admin_router.callback_query(F.data.startswith("requestAccess_"))
-async def search(
-    callback: types.CallbackQuery,
-    bot: Bot,
-    container: AsyncContainer,
-):
-    user_choice = callback.data.split("_")[1]
-    from_user = callback.data.split("_")[2]
-    if user_choice == "accept":
-        async with container() as di_container:
-            create_admin = await di_container.get(CreateAdmin)
-            await create_admin(int(from_user))
-            await callback.message.delete()
-            await bot.send_message(
-                chat_id=from_user, text="Ваш запрос на права администратора был одобрен"
-            )
-    if user_choice == "reject":
-        await callback.message.delete()
-        await bot.send_message(
-            chat_id=from_user, text="Ваш запрос на права администратора отклонен"
-        )

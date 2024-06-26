@@ -8,5 +8,5 @@ class Admin:
     role: str
 
     @staticmethod
-    def create(telegram_id: int, username: str, role: str = "admin") -> "Admin":
+    def create(telegram_id: int, username: str = "", role: str = "admin") -> "Admin":
         return Admin(telegram_id=telegram_id, username=username, role=role)
