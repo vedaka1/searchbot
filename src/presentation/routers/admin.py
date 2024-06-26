@@ -32,7 +32,7 @@ async def cmd_update_info(message: types.Message, state: FSMContext):
     )
 
 
-@admin_router.callback_query(UpdateFile.category, F.data.startswith("search_"))
+@admin_router.callback_query(UpdateFile.category)
 async def callback_search(
     callback: types.CallbackQuery,
     state: FSMContext,
@@ -48,18 +48,20 @@ async def callback_search(
         await callback.message.edit_text("Отправьте файл с документами в формате .xlsx")
 
 
-@admin_router.message(UpdateFile.file)
+@admin_router.message(UpdateFile.file, F)
 async def upload_file(
     message: types.Message, state: FSMContext, bot: Bot, container: AsyncContainer
 ):
     file_id = message.document.file_id
     file_info = await bot.get_file(file_id)
     file_path = file_info.file_path
+    if not file_path.endswith(".xlsx"):
+        return await message.answer("Файл должен быть в формате .xlsx")
 
     data = await state.get_data()
     category = data.get("category")
-    if category == "Сотрудник":
-        async with container() as di_container:
+    async with container() as di_container:
+        if category == "Сотрудник":
             destination_path = "infrastructure/excel/employees_data.xlsx"
             await bot.download_file(file_path, destination=destination_path)
             update_employe = await di_container.get(CreateAllEmployees)
@@ -68,8 +70,7 @@ async def upload_file(
             await message.answer("Информация успешно обновлена")
             await state.clear()
 
-    if category == "Документ":
-        async with container() as di_container:
+        if category == "Документ":
             destination_path = "infrastructure/excel/documents_data.xlsx"
             await bot.download_file(file_path, destination=destination_path)
             update_employe = await di_container.get(CreateAllDocuments)
