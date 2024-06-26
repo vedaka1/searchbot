@@ -20,19 +20,21 @@ class EmployeRepository(BaseEmployeRepository):
         pass
 
     async def get_by_search_prompt(
-        self, search_prompt: str, limit: int = 10, offset: int = 0
+        self, search_prompt: str, limit: int = 100, offset: int = 0
     ) -> list[Employe]:
         query = text(
             """
             SELECT * FROM employees
-            WHERE employees.lastname ILIKE :search_prompt or employees.firstname_patronymic ILIKE :search_prompt or employees.position ILIKE :search_prompt
+            WHERE CONCAT(employees.lastname, ' ', employees.firstname_patronymic) ILIKE :search_prompt
+            or CONCAT(employees.firstname_patronymic, ' ', employees.lastname) ILIKE :search_prompt
+            or employees.position ILIKE :search_prompt
             LIMIT :limit OFFSET :offset;
             """
         )
         result = await self.session.execute(
             query,
             {
-                "search_prompt": str("%" + search_prompt + "%"),
+                "search_prompt": search_prompt,
                 "limit": limit,
                 "offset": offset,
             },

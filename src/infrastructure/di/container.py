@@ -6,6 +6,7 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from sqlalchemy import Engine
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
+from application.common.transaction import BaseTransactionManager
 from application.usecases.admin import *
 from application.usecases.admin.get_admin import GetHeadAdmin
 from application.usecases.document.create_document import CreateAllDocuments
@@ -23,6 +24,7 @@ from infrastructure.persistence.main import (
 from infrastructure.persistence.repositories.admin import AdminRepository
 from infrastructure.persistence.repositories.document import DocumentRepository
 from infrastructure.persistence.repositories.employe import EmployeRepository
+from infrastructure.persistence.transaction import TransactionManager
 
 
 @lru_cache(1)
@@ -45,6 +47,10 @@ class SettingsProvider(Provider):
         return get_sync_engine()
 
     @provide(scope=Scope.APP)
+    def logger(self) -> logging.Logger:
+        return logging.getLogger()
+
+    @provide(scope=Scope.APP)
     def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
         return create_session_factory(engine)
 
@@ -65,6 +71,7 @@ class DatabaseAdaptersProvider(Provider):
     employe_repository = provide(EmployeRepository, provides=BaseEmployeRepository)
     document_repository = provide(DocumentRepository, provides=BaseDocumentRepository)
     admin_repository = provide(AdminRepository, provides=BaseAdminRepository)
+    transaction_manager = provide(TransactionManager, provides=BaseTransactionManager)
 
 
 class UseCasesProvider(Provider):

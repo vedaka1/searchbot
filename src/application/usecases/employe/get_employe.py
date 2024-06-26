@@ -12,8 +12,9 @@ class GetEmploye:
 
     async def __call__(self, search_prompt: str) -> str:
         try:
+            search_prompt = "%" + r"%%".join(list(search_prompt.split())) + "%"
             employes = await self.employe_repository.get_by_search_prompt(
-                search_prompt=search_prompt, limit=100
+                search_prompt=search_prompt
             )
         except Exception as e:
             print(e)

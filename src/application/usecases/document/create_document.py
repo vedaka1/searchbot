@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 
 import pandas as pd
 from sqlalchemy import Engine
@@ -7,6 +8,7 @@ from sqlalchemy import Engine
 @dataclass
 class CreateAllDocuments:
     engine: Engine
+    logger: Logger
 
     def __call__(self, file) -> None:
         df = pd.read_excel(file, header=2)
@@ -33,7 +35,7 @@ class CreateAllDocuments:
             df.to_sql(name="documents", con=self.engine, if_exists="replace")
 
         except ValueError:
-            return "Количество столбцов в файле не совпадает со столбцами в базе данных"
+            raise
         except Exception as e:
-            print(e)
-            return "Не удалось обновить информацию"
+            self.logger.error("usecase: CreateAllDocuments error: {0}".format(e))
+            raise
