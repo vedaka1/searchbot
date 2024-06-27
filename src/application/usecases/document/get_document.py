@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 
 from domain.common.response import Response
 from domain.documents.repository import BaseDocumentRepository
@@ -9,6 +10,7 @@ class GetDocument:
     """A class that returns all documents matching the search prompt"""
 
     document_repository: BaseDocumentRepository
+    logger: Logger
 
     async def __call__(self, search_prompt: str) -> str:
         try:
@@ -17,7 +19,7 @@ class GetDocument:
                 search_prompt=search_prompt
             )
         except Exception as e:
-            print(e)
+            self.logger.error("usecase: GetDocument error: {0}".format(e))
             return "Возникла ошибка"
 
         if not documents:
