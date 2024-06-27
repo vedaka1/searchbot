@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 
 from domain.common.response import Response
 from domain.employees.repository import BaseEmployeRepository
@@ -9,6 +10,7 @@ class GetEmploye:
     """A class that returns all employees matching the search prompt"""
 
     employe_repository: BaseEmployeRepository
+    logger: Logger
 
     async def __call__(self, search_prompt: str) -> str:
         try:
@@ -17,7 +19,7 @@ class GetEmploye:
                 search_prompt=search_prompt
             )
         except Exception as e:
-            print(e)
+            self.logger.error("usecase: GetEmploye error: {0}".format(e))
             return "Возникла ошибка"
 
         if not employes:
