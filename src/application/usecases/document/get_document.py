@@ -22,6 +22,7 @@ class GetDocument:
 
         if not documents:
             return "Записей о документах не найдено"
+
         result = "Найдено записей: {0}\n".format(len(documents))
         separator = "<-------->\n"
         for key, document in enumerate(documents):

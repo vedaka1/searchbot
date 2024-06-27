@@ -10,7 +10,7 @@ class CreateAllDocuments:
     engine: Engine
     logger: Logger
 
-    def __call__(self, file) -> None:
+    def __call__(self, file) -> str:
         df = pd.read_excel(file, header=2)
         document_columns = [
             "id",
@@ -33,9 +33,10 @@ class CreateAllDocuments:
         try:
             df.columns = document_columns
             df.to_sql(name="documents", con=self.engine, if_exists="replace")
+            return "Данные успешно обновлены"
 
         except ValueError:
-            raise
+            return "Количество столбцов в файле не совпадает со столбцами в базе данных"
         except Exception as e:
             self.logger.error("usecase: CreateAllDocuments error: {0}".format(e))
-            raise
+            return "Не удалось обновить информацию"

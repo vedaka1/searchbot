@@ -12,3 +12,4 @@ class Response:
         for symbol in self._symbols_to_ignore:
             self.value = self.value.replace(symbol, f"\{symbol}")
         self.value = self.value.replace(r"\*", "*")
+        self.value = self.value.replace(r"\`", "`")

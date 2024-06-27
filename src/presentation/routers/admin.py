@@ -5,6 +5,9 @@ from dishka import AsyncContainer
 
 from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.employe.create_employe import CreateAllEmployees
+from application.usecases.users.get_user import GetAllAdmins
+from application.usecases.users.update_user import DemoteUser, PromoteUserToAdmin
+from domain.common.response import Response
 from presentation.common.keyboards import category_keyboard
 from presentation.middlewares.admin import AdminMiddleware
 from presentation.texts.text import text
@@ -20,7 +23,20 @@ class UpdateFile(StatesGroup):
 
 @admin_router.message(filters.Command("info"))
 async def cmd_info(message: types.Message):
-    await message.answer(text["info"])
+    await message.answer(Response(text["info"]).value, parse_mode="MarkDownV2")
+
+
+@admin_router.message(filters.Command("admins"))
+async def cmd_info(message: types.Message, container: AsyncContainer):
+    async with container() as di_container:
+        get_admins = await di_container.get(GetAllAdmins)
+        admins = await get_admins()
+        result = "Список администраторов:\n"
+        for admin in admins:
+            result += " - id: `{0}` username: {1}\n".format(
+                admin.telegram_id, admin.username
+            )
+        await message.answer(Response(result).value, parse_mode="MarkDownV2")
 
 
 @admin_router.message(filters.Command("update_info"))
@@ -30,6 +46,40 @@ async def cmd_update_info(message: types.Message, state: FSMContext):
         "Выберите какую информацию нужно обновить",
         reply_markup=types.InlineKeyboardMarkup(inline_keyboard=category_keyboard),
     )
+
+
+@admin_router.message(filters.Command("promote_user"))
+async def cmd_update_info(
+    message: types.Message,
+    container: AsyncContainer,
+    command: filters.command.CommandObject,
+):
+    user_id = command.args
+    if not user_id:
+        return await message.answer(
+            "Укажите id пользователя через пробел после команды"
+        )
+    async with container() as di_container:
+        promote_user = await di_container.get(PromoteUserToAdmin)
+        result = await promote_user(int(user_id.split()[0]))
+        await message.answer(result)
+
+
+@admin_router.message(filters.Command("demote_user"))
+async def cmd_update_info(
+    message: types.Message,
+    container: AsyncContainer,
+    command: filters.command.CommandObject,
+):
+    user_id = command.args
+    if not user_id:
+        return await message.answer(
+            "Укажите id пользователя через пробел после команды"
+        )
+    async with container() as di_container:
+        demote_user = await di_container.get(DemoteUser)
+        result = await demote_user(int(user_id.split()[0]))
+        await message.answer(result)
 
 
 @admin_router.callback_query(UpdateFile.category)
@@ -65,24 +115,16 @@ async def upload_file(
             destination_path = "infrastructure/excel/employees_data.xlsx"
             await bot.download_file(file_path, destination=destination_path)
             update_employe = await di_container.get(CreateAllEmployees)
-            update_employe(destination_path)
+            result = update_employe(destination_path)
 
-            await message.answer("Информация успешно обновлена")
+            await message.answer(result)
             await state.clear()
 
         if category == "Документ":
             destination_path = "infrastructure/excel/documents_data.xlsx"
             await bot.download_file(file_path, destination=destination_path)
-            update_employe = await di_container.get(CreateAllDocuments)
-            try:
-                update_employe(destination_path)
-            except ValueError:
-                return await message.answer(
-                    "Количество столбцов в файле не совпадает со столбцами в базе данных"
-                )
-            except:
-                return await message.answer("Возникла ошибка")
-            finally:
-                await state.clear()
+            update_document = await di_container.get(CreateAllDocuments)
+            result = update_document(destination_path)
 
-            await message.answer("Информация успешно обновлена")
+            await message.answer(result)
+            await state.clear()

@@ -19,7 +19,7 @@ class GetAdminByTelegramId:
     user_repository: BaseUserRepository
 
     async def __call__(self, user_id: int) -> User | None:
-        user = await self.user_repository.get_by_id(user_id)
+        user = await self.user_repository.get_admin_by_id(user_id)
         if user is None:
             return None
         return user
@@ -31,3 +31,13 @@ class GetHeadAdminId:
 
     async def __call__(self) -> int:
         return self.head_admin_id
+
+
+@dataclass
+class GetAllAdmins:
+    user_repository: BaseUserRepository
+
+    async def __call__(self) -> list[User]:
+        result = await self.user_repository.get_all()
+        result = [user for user in result if user.role == "admin"]
+        return result

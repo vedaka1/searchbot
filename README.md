@@ -18,3 +18,14 @@ HEAD_ADMIN_TG_ID=
 ```
 
 Run `docker compose up -d` in the project directory
+
+## Commands
+* **/start** - Start interacting with the bot
+* **/info** - Informations for admins
+* **/request_access** - Request admin rights
+* **/search** - Search for employees and documents
+* **/update_info** - Update information about employees or documents
+* **/promote_user <user id>** - Promote user
+* **/demote_user <user id>** - Demote user
+* **/admins <user id>** - The list of admins
+
