@@ -18,10 +18,11 @@ class AdminMiddleware(BaseMiddleware):
     ) -> Any:
         user = data["event_from_user"]
         container = get_container()
-        if user.id != settings.HEAD_ADMIN_TG_ID:
-            async with container() as di_container:
-                get_admin = await di_container.get(GetAdminByTelegramId)
-                admin = await get_admin(user.id)
-                if admin is None:
-                    return await event.answer(text["permission_denied"])
+        if user.id == settings.HEAD_ADMIN_TG_ID:
+            return await handler(event, data)
+        async with container() as di_container:
+            get_admin = await di_container.get(GetAdminByTelegramId)
+            admin = await get_admin(user.id)
+            if admin is None:
+                return await event.answer(text["permission_denied"])
         return await handler(event, data)
