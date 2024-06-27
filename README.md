@@ -27,7 +27,7 @@ HEAD_ADMIN_TG_ID=
 * **/request_access** - Request admin rights
 * **/search** - Search for employees and documents
 * **/update_info** - Update information about employees or documents
-* **/promote_user <user id>** - Promote user
-* **/demote_user <user id>** - Demote user
+* **/promote_user \<user id\>** - Promote user
+* **/demote_user \<user id\>** - Demote user
 * **/admins <user id>** - List of admins
 
