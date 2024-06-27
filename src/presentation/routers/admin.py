@@ -27,7 +27,7 @@ async def cmd_info(message: types.Message):
 
 
 @admin_router.message(filters.Command("admins"))
-async def cmd_info(message: types.Message, container: AsyncContainer):
+async def cmd_admins(message: types.Message, container: AsyncContainer):
     async with container() as di_container:
         get_admins = await di_container.get(GetAllAdmins)
         admins = await get_admins()
@@ -49,7 +49,7 @@ async def cmd_update_info(message: types.Message, state: FSMContext):
 
 
 @admin_router.message(filters.Command("promote_user"))
-async def cmd_update_info(
+async def cmd_promote_user(
     message: types.Message,
     container: AsyncContainer,
     command: filters.command.CommandObject,
@@ -66,7 +66,7 @@ async def cmd_update_info(
 
 
 @admin_router.message(filters.Command("demote_user"))
-async def cmd_update_info(
+async def cmd_demote_user(
     message: types.Message,
     container: AsyncContainer,
     command: filters.command.CommandObject,
@@ -83,7 +83,7 @@ async def cmd_update_info(
 
 
 @admin_router.callback_query(UpdateFile.category)
-async def callback_search(
+async def callback_update_info(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
