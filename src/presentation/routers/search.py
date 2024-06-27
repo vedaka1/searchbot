@@ -2,56 +2,28 @@ from logging import getLogger
 
 from aiogram import Bot, F, Router, filters, types
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
 from dishka import AsyncContainer
 
+from application.common.states import Search
+from application.usecases.callbacks.request_access import RequestAccessCallback
+from application.usecases.commands.request_access import RequestAccessCommand
 from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.get_employe import GetEmploye
 from application.usecases.users.create_user import CreateUser
-from application.usecases.users.get_user import GetAdminByTelegramId, GetHeadAdminId
-from application.usecases.users.update_user import PromoteUserToAdmin
-from domain.common.response import Response
-from presentation.common.keyboards import category_keyboard, request_access_keyboard
+from presentation.common.keyboards import search_category_keyboard
 from presentation.texts.text import text
 
 logger = getLogger()
 search_router = Router()
 
 
-class Search(StatesGroup):
-    category = State()
-    search = State()
-
-
 @search_router.message(filters.Command("request_access"))
 async def cmd_request_access(
-    message: types.Message, bot: Bot, container: AsyncContainer, state: FSMContext
+    message: types.Message, bot: Bot, state: FSMContext, container: AsyncContainer
 ):
-    await state.clear()
     async with container() as di_container:
-        get_admin = await di_container.get(GetAdminByTelegramId)
-        get_head_admin = await di_container.get(GetHeadAdminId)
-        create_user = await di_container.get(CreateUser)
-        admin = await get_admin(message.from_user.id)
-        if admin:
-            return await message.answer("У вас уже есть права администратора")
-        await create_user(message.from_user.id, message.from_user.username)
-        head_admin_id = await get_head_admin()
-
-    text = Response(
-        "Пользователь запросил права администратора\n\n*ID:* {0}\n*username:* {1}".format(
-            message.from_user.id, message.from_user.username
-        )
-    ).value
-    await bot.send_message(
-        chat_id=head_admin_id,
-        text=text,
-        reply_markup=types.InlineKeyboardMarkup(
-            inline_keyboard=request_access_keyboard(message.from_user.id)
-        ),
-        parse_mode="MarkDownV2",
-    )
-    await message.answer("Запрос отправлен")
+        request_access_command_interactor = await di_container.get(RequestAccessCommand)
+        await request_access_command_interactor(message=message, bot=bot, state=state)
 
 
 @search_router.callback_query(F.data.startswith("requestAccess_"))
@@ -60,21 +32,11 @@ async def callback_request_access(
     bot: Bot,
     container: AsyncContainer,
 ):
-    user_choice = callback.data.split("_")[1]
-    from_user = callback.data.split("_")[2]
-    if user_choice == "accept":
-        async with container() as di_container:
-            promote_user = await di_container.get(PromoteUserToAdmin)
-            await promote_user(user_id=int(from_user))
-            await callback.message.delete()
-            await bot.send_message(
-                chat_id=from_user, text="Ваш запрос на права администратора был одобрен"
-            )
-    if user_choice == "reject":
-        await callback.message.delete()
-        await bot.send_message(
-            chat_id=from_user, text="Ваш запрос на права администратора отклонен"
+    async with container() as di_container:
+        request_access_callback_interactor = await di_container.get(
+            RequestAccessCallback
         )
+        await request_access_callback_interactor(callback=callback, bot=bot)
 
 
 @search_router.message(filters.Command("start"))
@@ -82,7 +44,7 @@ async def cmd_start(message: types.Message, container: AsyncContainer):
     async with container() as di_container:
         create_user = await di_container.get(CreateUser)
         await create_user(message.from_user.id, message.from_user.username)
-    await message.answer(text["start"])
+        await message.answer(text["start"])
 
 
 @search_router.message(Search.search)
@@ -96,12 +58,14 @@ async def cmd_search(message: types.Message, state: FSMContext):
     await state.set_state(Search.category)
     await message.answer(
         "Выберите категорию поиска:",
-        reply_markup=types.InlineKeyboardMarkup(inline_keyboard=category_keyboard),
+        reply_markup=types.InlineKeyboardMarkup(
+            inline_keyboard=search_category_keyboard
+        ),
     )
 
 
 @search_router.callback_query(Search.category, F.data.startswith("search_"))
-async def callback_select_subscription(
+async def callback_search(
     callback: types.CallbackQuery,
     state: FSMContext,
 ):
@@ -114,22 +78,16 @@ async def callback_select_subscription(
 
 
 @search_router.message(Search.category)
-async def get_employe(
-    message: types.Message, container: AsyncContainer, state: FSMContext
-):
+async def search(message: types.Message, container: AsyncContainer, state: FSMContext):
     await state.set_state(Search.search)
     data = await state.get_data()
     category = data.get("category")
     async with container() as di_container:
         if category == "Сотрудник":
-            get_employe = await di_container.get(GetEmploye)
-            result = await get_employe(message.text)
-            await state.clear()
-            await message.answer(result, parse_mode="MarkDownV2")
-
+            get_employe_interactor = await di_container.get(GetEmploye)
+            await get_employe_interactor(message=message)
         if category == "Документ":
-            get_document = await di_container.get(GetDocument)
-            result = await get_document(message.text)
-            logger.info(result)
-            await state.clear()
-            await message.answer(result, parse_mode="MarkDownV2")
+            get_document_interactor = await di_container.get(GetDocument)
+            await get_document_interactor(message=message)
+
+        await state.clear()
