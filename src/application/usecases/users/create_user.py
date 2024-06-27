@@ -12,10 +12,10 @@ class CreateUser:
     transaction_manager: BaseTransactionManager
     logger: Logger
 
-    async def __call__(self, user_id: int, username: str = "") -> User:
+    async def __call__(self, user_id: int, username: str = "") -> User | str:
         user_exists = await self.user_repository.get_by_id(user_id)
         if user_exists:
-            return None
+            return "Данный пользователь уже существует"
 
         user = User.create(telegram_id=user_id, username=username)
         try:

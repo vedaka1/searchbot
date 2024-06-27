@@ -22,6 +22,7 @@ class GetEmploye:
 
         if not employes:
             return "Записей о сотрудниках не найдено"
+
         result = "Найдено записей: {0}\n".format(len(employes))
         separator = "<-------->\n"
         for key, employe in enumerate(employes):
