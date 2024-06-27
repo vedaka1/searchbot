@@ -27,5 +27,5 @@ Run `docker compose up -d` in the project directory
 * **/update_info** - Update information about employees or documents
 * **/promote_user <user id>** - Promote user
 * **/demote_user <user id>** - Demote user
-* **/admins <user id>** - The list of admins
+* **/admins <user id>** - List of admins
 
