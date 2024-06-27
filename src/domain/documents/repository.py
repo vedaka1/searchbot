@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from logging import Logger
+
+from sqlalchemy import Engine
 
 from domain.documents.document import Document
 
@@ -27,3 +30,6 @@ class BaseDocumentRepository(ABC):
 
     @abstractmethod
     async def update(self) -> None: ...
+
+    @abstractmethod
+    def update_documents_with_pandas(self, engine: Engine, file_path: str) -> str: ...

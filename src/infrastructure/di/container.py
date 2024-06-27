@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.common.admin import HeadAdminID
 from application.common.transaction import BaseTransactionManager
+from application.usecases.callbacks import *
+from application.usecases.commands import *
 from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.create_employe import CreateAllEmployees
@@ -94,6 +96,10 @@ class UseCasesProvider(Provider):
     create_employees = provide(CreateAllEmployees)
     create_documents = provide(CreateAllDocuments)
     get_head_admin = provide(GetHeadAdminId)
+    upload_file = provide(UploadFile)
+    update_info = provide(UpdateInfo)
+    request_access_callback = provide(RequestAccessCallback)
+    request_access_cmd = provide(RequestAccessCommand)
 
 
 @lru_cache(1)
