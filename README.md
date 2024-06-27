@@ -16,8 +16,10 @@ POSTGRES_DB=
 
 HEAD_ADMIN_TG_ID=
 ```
-
-Run `docker compose up -d` in the project directory
+### Dev
+* Run `docker compose up -d` or `make app` in the project directory
+### Production
+* Run Run `docker compose -f docker-compose.production.yml up -d` or `make prod` in the project directory
 
 ## Commands
 * **/start** - Start interacting with the bot
