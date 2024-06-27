@@ -30,6 +30,3 @@ class BaseEmployeRepository(ABC):
 
     @abstractmethod
     async def update(self) -> None: ...
-
-    @abstractmethod
-    def update_employees_with_pandas(self, engine: Engine, file_path: str) -> str: ...

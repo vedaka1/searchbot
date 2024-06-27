@@ -45,29 +45,3 @@ class DocumentRepository(BaseDocumentRepository):
     async def get_all(self, limit: int = 10, offset: int = 0) -> list[Document]: ...
 
     async def update(self) -> None: ...
-
-    def update_documents_with_pandas(engine: Engine, file_path: str) -> str:
-        df = pd.read_excel(file_path, header=2)
-        document_columns = [
-            "id",
-            "department",
-            "document_type",
-            "first_publishing",
-            "publishing_date",
-            "lvl_1",
-            "queue_1",
-            "lvl_2",
-            "queue_2",
-            "lvl_3",
-            "queue_3",
-            "lvl_4",
-            "queue_4",
-            "credentials",
-            "title",
-            "link_text",
-        ]
-
-        df.columns = document_columns
-        df.to_sql(name="documents", con=engine, if_exists="replace")
-
-        return "Данные успешно обновлены"
