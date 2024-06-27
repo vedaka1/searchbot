@@ -36,6 +36,7 @@ class CreateAllDocuments:
             return "Данные успешно обновлены"
 
         except ValueError:
+            self.logger.error("usecase: CreateAllDocuments error: {0}".format(e))
             return "Количество столбцов в файле не совпадает со столбцами в базе данных"
         except Exception as e:
             self.logger.error("usecase: CreateAllDocuments error: {0}".format(e))

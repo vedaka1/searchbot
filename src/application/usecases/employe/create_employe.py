@@ -43,8 +43,9 @@ class CreateAllEmployees:
             df.to_sql(name="employees", con=self.engine, if_exists="replace")
             return "Данные успешно обновлены"
 
-        except ValueError:
+        except ValueError as e:
+            self.logger.error("usecase: CreateAllEmployees error: {0}".format(e))
             return "Количество столбцов в файле не совпадает со столбцами в базе данных"
         except Exception as e:
-            self.logger.error("usecase: CreateAllDocuments error: {0}".format(e))
+            self.logger.error("usecase: CreateAllEmployees error: {0}".format(e))
             return "Не удалось обновить информацию"
