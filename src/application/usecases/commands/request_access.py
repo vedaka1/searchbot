@@ -27,7 +27,7 @@ class RequestAccessCommand:
     ) -> Any:
 
         await state.clear()
-        user_id = message.from_user.id
+        user_id = str(message.from_user.id)
         username = message.from_user.username
         head_admin_id = self.head_admin_id
 

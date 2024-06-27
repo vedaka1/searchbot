@@ -22,17 +22,20 @@ class GetAdminByTelegramId:
     user_repository: BaseUserRepository
 
     async def __call__(self, user_id: int) -> User | None:
-        user = await self.user_repository.get_admin_by_id(user_id)
-        if user is None:
+        try:
+            user = await self.user_repository.get_admin_by_id(user_id)
+            if user is None:
+                return None
+            return user
+        except:
             return None
-        return user
 
 
 @dataclass
 class GetHeadAdminId:
     head_admin_id: HeadAdminID
 
-    async def __call__(self) -> int:
+    async def __call__(self) -> str:
         return self.head_admin_id
 
 
