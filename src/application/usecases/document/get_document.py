@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from domain.common.response import Response
+from domain.common.response import Link, Response
 from domain.documents.repository import BaseDocumentRepository
 
 
@@ -55,7 +55,10 @@ class GetDocument:
             )
             document_body = Response(document_body).value
             if document.link_text:
-                document_body += "[Ссылка]({0})\n".format(document.link_text)
+                document_body += "[Ссылка]({0})\n".format(
+                    Link(document.link_text).value
+                )
+
             if len(result) + len(document_body) > 4000:
                 result += "\nОтображено записей {0}/{1}".format(key + 1, len(documents))
                 return result
