@@ -30,6 +30,3 @@ class BaseDocumentRepository(ABC):
 
     @abstractmethod
     async def update(self) -> None: ...
-
-    @abstractmethod
-    def update_documents_with_pandas(self, engine: Engine, file_path: str) -> str: ...

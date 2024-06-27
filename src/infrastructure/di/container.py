@@ -96,7 +96,6 @@ class UseCasesProvider(Provider):
     create_employees = provide(CreateAllEmployees)
     create_documents = provide(CreateAllDocuments)
     get_head_admin = provide(GetHeadAdminId)
-    upload_file = provide(UploadFile)
     update_info = provide(UpdateInfo)
     request_access_callback = provide(RequestAccessCallback)
     request_access_cmd = provide(RequestAccessCommand)

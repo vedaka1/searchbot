@@ -4,7 +4,6 @@ from dishka import AsyncContainer
 
 from application.common.states import UpdateFile
 from application.usecases.callbacks.update_info import UpdateInfo
-from application.usecases.commands.upload_file import UploadFile
 from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.employe.create_employe import CreateAllEmployees
 from application.usecases.users.get_user import GetAllAdmins
