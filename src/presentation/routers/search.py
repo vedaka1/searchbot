@@ -130,5 +130,6 @@ async def get_employe(
         if category == "Документ":
             get_document = await di_container.get(GetDocument)
             result = await get_document(message.text)
+            logger.info(result)
             await state.clear()
             await message.answer(result, parse_mode="MarkDownV2")
