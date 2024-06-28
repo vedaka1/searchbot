@@ -1,12 +1,14 @@
 from aiogram import types
 
+categories = ["Сотрудник", "Документ", "Вебсайт"]
+
 search_category_keyboard = [
     [
         types.InlineKeyboardButton(
             text=search_type, callback_data=f"search_{search_type}"
         )
     ]
-    for search_type in ["Сотрудник", "Документ"]
+    for search_type in categories
 ]
 update_category_keyboard = [
     [
@@ -14,7 +16,7 @@ update_category_keyboard = [
             text=search_type, callback_data=f"update_{search_type}"
         )
     ]
-    for search_type in ["Сотрудник", "Документ"]
+    for search_type in categories
 ]
 
 

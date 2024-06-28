@@ -32,20 +32,18 @@ class GetDocument:
         for key, document in enumerate(documents):
             document_body = separator
             for atr in document.__dict__:
-                if document.__dict__[atr] in (None, "", "@", "9999999"):
+                if document.__dict__[atr] in (None, "@", "9999999"):
                     document.__dict__[atr] = ""
 
-            workplace = ""
-            for place in (
+            for workplace in (
                 document.department,
                 document.lvl_1,
                 document.lvl_2,
                 document.lvl_3,
                 document.lvl_4,
             ):
-                if place:
-                    workplace += place + "\n"
-            document_body += workplace
+                if workplace:
+                    document_body += workplace + "\n"
 
             document_body += (
                 "*Тип:* {0}\n*Реквизиты:* {1}\n*Название:* {2}\n*Дата:* {3}\n".format(

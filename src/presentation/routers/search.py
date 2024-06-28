@@ -10,8 +10,9 @@ from application.usecases.commands.request_access import RequestAccessCommand
 from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.get_employe import GetEmploye
 from application.usecases.users.create_user import CreateUser
+from application.usecases.websites.get_website import GetWebsite
 from presentation.common.keyboards import search_category_keyboard
-from presentation.texts.text import text
+from presentation.texts.text import Text
 
 logger = getLogger()
 search_router = Router()
@@ -44,7 +45,7 @@ async def cmd_start(message: types.Message, container: AsyncContainer):
     async with container() as di_container:
         create_user = await di_container.get(CreateUser)
         await create_user(message.from_user.id, message.from_user.username)
-        await message.answer(text["start"])
+        await message.answer(Text.start)
 
 
 @search_router.message(Search.search)
@@ -75,6 +76,8 @@ async def callback_search(
         await callback.message.edit_text("Введите ФИО или должность сотрудника")
     if user_choice == "Документ":
         await callback.message.edit_text("Введите название или реквизиты документа")
+    if user_choice == "Вебсайт":
+        await callback.message.edit_text("Введите название, домен или ИОГВ вебсайта")
 
 
 @search_router.message(Search.category)
@@ -89,5 +92,8 @@ async def search(message: types.Message, container: AsyncContainer, state: FSMCo
         if category == "Документ":
             get_document_interactor = await di_container.get(GetDocument)
             await get_document_interactor(message=message)
+        if category == "Вебсайт":
+            get_website_interactor = await di_container.get(GetWebsite)
+            await get_website_interactor(message=message)
 
         await state.clear()

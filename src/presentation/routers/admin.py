@@ -3,9 +3,8 @@ from aiogram.fsm.context import FSMContext
 from dishka import AsyncContainer
 
 from application.common.states import UpdateFile
-from application.usecases.callbacks.update_info import UpdateInfo
-from application.usecases.document.create_document import CreateAllDocuments
-from application.usecases.employe.create_employe import CreateAllEmployees
+from application.usecases.callbacks.update_db_data import UpdateDatabaseDataCallback
+from application.usecases.commands.update_db_data import UpdateDatabaseDataCommand
 from application.usecases.users.get_user import GetAllAdmins
 from application.usecases.users.update_user import DemoteUser, PromoteUserToAdmin
 from domain.common.response import Response
@@ -19,7 +18,7 @@ admin_router.message.middleware(AdminMiddleware())
 
 @admin_router.message(filters.Command("info"))
 async def cmd_info(message: types.Message):
-    await message.answer(Response(text["info"]).value, parse_mode="MarkDownV2")
+    await message.answer(Response(text.info).value, parse_mode="MarkDownV2")
 
 
 @admin_router.message(filters.Command("admins"))
@@ -69,7 +68,7 @@ async def callback_update_info(
     container: AsyncContainer,
 ):
     async with container() as di_container:
-        get_admins_interactor = await di_container.get(UpdateInfo)
+        get_admins_interactor = await di_container.get(UpdateDatabaseDataCallback)
         return await get_admins_interactor(callback=callback, state=state)
 
 
@@ -77,14 +76,6 @@ async def callback_update_info(
 async def upload_file(
     message: types.Message, bot: Bot, state: FSMContext, container: AsyncContainer
 ):
-    data = await state.get_data()
-    category = data.get("category")
     async with container() as di_container:
-        if category == "Сотрудник":
-            update_employe = await di_container.get(CreateAllEmployees)
-            await update_employe(message=message, bot=bot)
-        if category == "Документ":
-            update_document = await di_container.get(CreateAllDocuments)
-            await update_document(message=message, bot=bot)
-
-        await state.clear()
+        update_db_data_interactor = await di_container.get(UpdateDatabaseDataCommand)
+        await update_db_data_interactor(message=message, state=state, bot=bot)

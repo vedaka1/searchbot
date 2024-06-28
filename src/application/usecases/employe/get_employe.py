@@ -32,19 +32,17 @@ class GetEmploye:
         for key, employe in enumerate(employes):
             employe_body = separator
             for atr in employe.__dict__:
-                if employe.__dict__[atr] in (None, "", "@", "9999999"):
+                if employe.__dict__[atr] in (None, "@", "9999999"):
                     employe.__dict__[atr] = ""
 
-            workplace = ""
-            for place in (
+            for workplace in (
                 employe.lvl_1_office,
                 employe.lvl_2_management,
                 employe.lvl_3_department,
                 employe.lvl_4_reserve,
             ):
-                if place:
-                    workplace += place + "\n"
-            employe_body += workplace
+                if workplace:
+                    employe_body += workplace + "\n"
 
             employe_body += (
                 "*Должность:* {0}\n*ФИО:* {1} {2}\n*Номер:* ({3}){4}\n".format(
@@ -57,8 +55,8 @@ class GetEmploye:
             )
             if employe.email:
                 employe_body += "*Почта:* {0}\n".format(employe.email)
-
             employe_body = Response(employe_body).value
+
             if len(result) + len(employe_body) > 4000:
                 result += "\nОтображено записей {0}/{1}".format(key + 1, len(employes))
                 return await message.answer(result, parse_mode="MarkDownV2")
