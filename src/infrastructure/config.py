@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
 
-    HEAD_ADMIN_TG_ID: str
+    HEAD_ADMIN_TG_ID: int
 
     @property
     def ASYNC_DB_URL(self):
