@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from aiogram import types
-
 from domain.common.response import Link, Response
 from domain.documents.repository import BaseDocumentRepository
 
@@ -14,18 +12,18 @@ class GetDocument:
     document_repository: BaseDocumentRepository
     logger: Logger
 
-    async def __call__(self, message: types.Message) -> str:
+    async def __call__(self, message_text: str) -> str:
         try:
-            search_prompt = "%" + r"%%".join(list(message.text.split())) + "%"
+            search_prompt = "%" + r"%%".join(list(message_text.split())) + "%"
             documents = await self.document_repository.get_by_search_prompt(
                 search_prompt=search_prompt
             )
         except Exception as e:
             self.logger.error("usecase: GetDocument error: {0}".format(e))
-            return await message.answer("Возникла ошибка")
+            return "Возникла ошибка"
 
         if not documents:
-            return await message.answer("Записей о документах не найдено")
+            return "Записей о документах не найдено"
 
         result = "Найдено записей: {0}\n".format(len(documents))
         separator = "<-------->\n"
@@ -61,8 +59,8 @@ class GetDocument:
 
             if len(result) + len(document_body) > 4000:
                 result += "\nОтображено записей {0}/{1}".format(key + 1, len(documents))
-                return await message.answer(result, parse_mode="MarkDownV2")
+                return result
 
             result += document_body
 
-        return await message.answer(result, parse_mode="MarkDownV2")
+        return result

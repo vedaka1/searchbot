@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from aiogram import types
-
 from domain.common.response import Response
 from domain.websites.repository import BaseWebsiteRepository
 
@@ -14,18 +12,18 @@ class GetWebsite:
     website_repository: BaseWebsiteRepository
     logger: Logger
 
-    async def __call__(self, message: types.Message) -> str:
+    async def __call__(self, message_text: str) -> str:
         try:
-            search_prompt = "%" + r"%%".join(list(message.text.split())) + "%"
+            search_prompt = "%" + r"%%".join(list(message_text.split())) + "%"
             websites = await self.website_repository.get_by_search_prompt(
                 search_prompt=search_prompt
             )
         except Exception as e:
             self.logger.error("usecase: GetWebsite error: {0}".format(e))
-            return await message.answer("Возникла ошибка")
+            return "Возникла ошибка"
 
         if not websites:
-            return await message.answer("Записей о вебсайтах не найдено")
+            return "Записей о вебсайтах не найдено"
 
         result = "Найдено записей: {0}\n".format(len(websites))
         separator = "<-------->\n"
@@ -51,8 +49,8 @@ class GetWebsite:
 
             if len(result) + len(website_body) > 4000:
                 result += "\nОтображено записей {0}/{1}".format(key + 1, len(websites))
-                return await message.answer(result, parse_mode="MarkDownV2")
+                return result
 
             result += website_body
 
-        return await message.answer(result, parse_mode="MarkDownV2")
+        return result

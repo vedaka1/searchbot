@@ -28,6 +28,7 @@ async def main():
     init_routers(dp)
     container = get_container()
     dp["container"] = container
+    dp["users"] = []
     await dp.start_polling(bot)
 
 
