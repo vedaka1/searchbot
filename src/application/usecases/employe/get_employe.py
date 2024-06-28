@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from aiogram import types
-
 from domain.common.response import Response
 from domain.employees.repository import BaseEmployeRepository
 

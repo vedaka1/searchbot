@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from logging import Logger
 
 import pandas as pd
 from sqlalchemy import Engine, text
