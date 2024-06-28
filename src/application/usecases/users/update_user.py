@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from aiogram import filters, types
-
 from application.common.transaction import BaseTransactionManager
 from domain.users.repository import BaseUserRepository
 
@@ -13,35 +11,21 @@ class PromoteUserToAdmin:
     transaction_manager: BaseTransactionManager
     logger: Logger
 
-    async def __call__(
-        self,
-        message: types.Message,
-        command: filters.command.CommandObject,
-    ) -> None:
-        user_id = command.args
-        if not user_id:
-            return await message.answer(
-                "Укажите id пользователя через пробел после команды"
-            )
-
-        user = await self.user_repository.get_by_id(int(user_id.split()[0]))
+    async def __call__(self, user_id: int) -> None:
+        user = await self.user_repository.get_by_id(user_id)
         if not user:
-            return await message.answer("Пользователь не найден")
-
+            return "Пользователь не найден"
         if user.role == "admin":
-            return await message.answer("Пользователь уже имеет права администратора")
-
+            return "Пользователь уже имеет права администратора"
         try:
             user.role = "admin"
             await self.user_repository.update_role(user)
         except Exception as e:
             self.logger.error("usecase: UpdateUserRole error: {0}".format(e))
-            return await message.answer("Возникла ошибка")
+            return "Возникла ошибка"
 
         await self.transaction_manager.commit()
-        return await message.answer(
-            f"Пользователь {user.telegram_id} теперь имеет права администратора"
-        )
+        return f"Пользователь {user.telegram_id} теперь имеет права администратора"
 
 
 @dataclass
@@ -50,32 +34,23 @@ class DemoteUser:
     transaction_manager: BaseTransactionManager
     logger: Logger
 
-    async def __call__(
-        self,
-        message: types.Message,
-        command: filters.command.CommandObject,
-    ) -> str:
-        user_id = command.args
-        if not user_id:
-            return await message.answer(
-                "Укажите id пользователя через пробел после команды"
-            )
+    async def __call__(self, command_args: str) -> str:
+        if not command_args:
+            return "Укажите id пользователя через пробел после команды"
 
-        user = await self.user_repository.get_by_id(int(user_id.split()[0]))
+        user = await self.user_repository.get_by_id(int(command_args.split()[0]))
         if not user:
-            return await message.answer("Пользователь не найден")
+            return "Пользователь не найден"
 
         if user.role == "user":
-            return await message.answer(
-                f"Пользователь {user.telegram_id} понижен в правах"
-            )
+            return f"Пользователь {user.telegram_id} понижен в правах"
 
         try:
             user.role = "user"
             await self.user_repository.update_role(user)
         except Exception as e:
             self.logger.error("usecase: UpdateUserRole error: {0}".format(e))
-            return await message.answer("Возникла ошибка")
+            return "Возникла ошибка"
 
         await self.transaction_manager.commit()
-        return await message.answer(f"Пользователь {user.telegram_id} понижен в правах")
+        return f"Пользователь {user.telegram_id} понижен в правах"

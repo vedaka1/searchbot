@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from application.common.admin import HeadAdminID
 from application.common.transaction import BaseTransactionManager
-from application.usecases.callbacks import *
 from application.usecases.commands import *
 from application.usecases.document.create_document import CreateAllDocuments
 from application.usecases.document.get_document import GetDocument
@@ -90,7 +89,7 @@ class UseCasesProvider(Provider):
 
     get_employe = provide(GetEmploye)
     get_document = provide(GetDocument)
-    get_user_by_id = provide(GetAdminByTelegramId)
+    get_user_by_id = provide(GetUserByTelegramId)
     get_users = provide(GetAllUsers)
     get_admins = provide(GetAllAdmins)
     delete_user = provide(DeleteUser)
@@ -100,9 +99,6 @@ class UseCasesProvider(Provider):
     create_employees = provide(CreateAllEmployees)
     create_documents = provide(CreateAllDocuments)
     get_head_admin = provide(GetHeadAdminId)
-    update_info = provide(UpdateDatabaseDataCallback)
-    request_access_callback = provide(RequestAccessCallback)
-    request_access_cmd = provide(RequestAccessCommand)
     update_db_data = provide(UpdateDatabaseDataCommand)
     get_website = provide(GetWebsite)
 

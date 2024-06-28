@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 
-from aiogram import types
-
 from application.common.admin import HeadAdminID
-from domain.common.response import Response
+from application.common.transaction import BaseTransactionManager
 from domain.users.repository import BaseUserRepository
 from domain.users.user import User
 
@@ -18,24 +16,28 @@ class GetAllUsers:
 
 
 @dataclass
-class GetAdminByTelegramId:
+class GetUserByTelegramId:
     user_repository: BaseUserRepository
+    transaction_manager: BaseTransactionManager
 
-    async def __call__(self, user_id: int) -> User | None:
-        try:
-            user = await self.user_repository.get_admin_by_id(user_id)
-            if user is None:
+    async def __call__(self, user_id: int, username: str) -> User | None:
+        user = await self.user_repository.get_by_id(user_id)
+        if not user:
+            user = User.create(telegram_id=user_id, username=username)
+            try:
+                await self.user_repository.create(user)
+                await self.transaction_manager.commit()
+            except Exception as e:
+                self.logger.error("usecase: GetUserByTelegramId error: {0}".format(e))
                 return None
-            return user
-        except:
-            return None
+        return user
 
 
 @dataclass
 class GetHeadAdminId:
     head_admin_id: HeadAdminID
 
-    async def __call__(self) -> str:
+    async def __call__(self) -> int:
         return self.head_admin_id
 
 
@@ -43,7 +45,7 @@ class GetHeadAdminId:
 class GetAllAdmins:
     user_repository: BaseUserRepository
 
-    async def __call__(self, message: types.Message) -> list[User]:
+    async def __call__(self) -> str:
         users_list = await self.user_repository.get_all()
         admins = [user for user in users_list if user.role == "admin"]
 
@@ -55,5 +57,4 @@ class GetAllAdmins:
                 )
         else:
             result = "Нет администраторов"
-
-        await message.answer(Response(result).value, parse_mode="MarkDownV2")
+        return result

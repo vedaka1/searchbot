@@ -18,27 +18,15 @@ class UpdateDatabaseDataCommand:
     engine: Engine
     logger: Logger
 
-    async def __call__(
-        self, message: types.Message, state: FSMContext, bot: Bot
-    ) -> str:
+    def __call__(self, category: str, destination_path: str) -> str:
         repository = {
             "Вебсайт": self.website_repository,
             "Документ": self.document_repository,
             "Сотрудник": self.employe_repository,
         }
-        data = await state.get_data()
-        category = data.get("category")
-        file_id = message.document.file_id
-        file_info = await bot.get_file(file_id)
-        file_path = file_info.file_path
-        if not file_path.endswith(".xlsx"):
-            return await message.answer("Файл должен быть в формате .xlsx")
-
-        destination_path = "infrastructure/excel/data.xlsx"
-        await bot.download_file(file_path, destination=destination_path)
 
         if category not in repository:
-            return await message.answer("Неверная категория")
+            return "Неверная категория"
 
         try:
             repository[category].excel_to_db(
@@ -46,12 +34,10 @@ class UpdateDatabaseDataCommand:
             )
         except ValueError as e:
             self.logger.error("usecase: UpdateDatabaseData error: {0}".format(e))
-            return await message.answer(
-                "Количество столбцов в файле не совпадает со столбцами в базе данных"
-            )
+            return "Количество столбцов в файле не совпадает со столбцами в базе данных"
+
         except Exception as e:
             self.logger.error("usecase: UpdateDatabaseData error: {0}".format(e))
-            return await message.answer("Не удалось обновить информацию")
+            return "Не удалось обновить информацию"
 
-        await message.answer("Данные успешно загружены")
-        await state.clear()
+        return "Данные успешно загружены"

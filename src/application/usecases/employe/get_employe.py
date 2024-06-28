@@ -14,18 +14,18 @@ class GetEmploye:
     employe_repository: BaseEmployeRepository
     logger: Logger
 
-    async def __call__(self, message: types.Message) -> str:
+    async def __call__(self, message_text: str) -> str:
         try:
-            search_prompt = "%" + r"%%".join(list(message.text.split())) + "%"
+            search_prompt = "%" + r"%%".join(list(message_text.split())) + "%"
             employes = await self.employe_repository.get_by_search_prompt(
                 search_prompt=search_prompt
             )
         except Exception as e:
             self.logger.error("usecase: GetEmploye error: {0}".format(e))
-            return await message.answer("Возникла ошибка")
+            return "Возникла ошибка"
 
         if not employes:
-            return await message.answer("Записей о сотрудниках не найдено")
+            return "Записей о сотрудниках не найдено"
 
         result = "Найдено записей: {0}\n".format(len(employes))
         separator = "<-------->\n"
@@ -59,8 +59,8 @@ class GetEmploye:
 
             if len(result) + len(employe_body) > 4000:
                 result += "\nОтображено записей {0}/{1}".format(key + 1, len(employes))
-                return await message.answer(result, parse_mode="MarkDownV2")
+                return result
 
             result += employe_body
 
-        return await message.answer(result, parse_mode="MarkDownV2")
+        return result

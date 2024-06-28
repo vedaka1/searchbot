@@ -28,5 +28,10 @@ class Text:
         )
         return text
 
+    def request_access(self, user_id: int, username: str):
+        return "Пользователь запросил права администратора\n\n*ID:* {0}\n*username:* {1}".format(
+            user_id, username
+        )
+
 
 text = Text()
