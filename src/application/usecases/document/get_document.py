@@ -15,7 +15,6 @@ class GetDocument:
     logger: Logger
 
     async def __call__(self, message: types.Message) -> str:
-        self.logger.info("usecase: GetDocument")
         try:
             search_prompt = "%" + r"%%".join(list(message.text.split())) + "%"
             documents = await self.document_repository.get_by_search_prompt(
