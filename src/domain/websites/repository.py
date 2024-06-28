@@ -1,20 +1,19 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from logging import Logger
 
 from sqlalchemy import Engine
 
-from domain.employees.employe import Employe
+from domain.websites.website import Website
 
 
 @dataclass
-class BaseEmployeRepository(ABC):
-    """An abstract employe repository for their implementations"""
+class BaseWebsiteRepository(ABC):
+    """An abstract webiste repository for their implementations"""
 
     @abstractmethod
     async def get_by_search_prompt(
-        self, search_prompt: str, limit: int = 10, offset: int = 0
-    ) -> list[Employe]: ...
+        self, search_prompt: str, limit: int = 100, offset: int = 0
+    ) -> list[Website]: ...
 
     @abstractmethod
     def excel_to_db(self, engine: Engine, destination_path: str) -> None: ...

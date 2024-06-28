@@ -15,9 +15,11 @@ from application.usecases.document.get_document import GetDocument
 from application.usecases.employe.create_employe import CreateAllEmployees
 from application.usecases.employe.get_employe import GetEmploye
 from application.usecases.users import *
+from application.usecases.websites.get_website import GetWebsite
 from domain.documents.repository import BaseDocumentRepository
 from domain.employees.repository import BaseEmployeRepository
 from domain.users.repository import BaseUserRepository
+from domain.websites.repository import BaseWebsiteRepository
 from infrastructure.config import settings
 from infrastructure.persistence.main import (
     create_session_factory,
@@ -27,6 +29,7 @@ from infrastructure.persistence.main import (
 from infrastructure.persistence.repositories.document import DocumentRepository
 from infrastructure.persistence.repositories.employe import EmployeRepository
 from infrastructure.persistence.repositories.user import UserRepository
+from infrastructure.persistence.repositories.website import WebsiteRepository
 from infrastructure.persistence.transaction import TransactionManager
 
 
@@ -79,6 +82,7 @@ class DatabaseAdaptersProvider(Provider):
     document_repository = provide(DocumentRepository, provides=BaseDocumentRepository)
     user_repository = provide(UserRepository, provides=BaseUserRepository)
     transaction_manager = provide(TransactionManager, provides=BaseTransactionManager)
+    website_repository = provide(WebsiteRepository, provides=BaseWebsiteRepository)
 
 
 class UseCasesProvider(Provider):
@@ -96,9 +100,11 @@ class UseCasesProvider(Provider):
     create_employees = provide(CreateAllEmployees)
     create_documents = provide(CreateAllDocuments)
     get_head_admin = provide(GetHeadAdminId)
-    update_info = provide(UpdateInfo)
+    update_info = provide(UpdateDatabaseDataCallback)
     request_access_callback = provide(RequestAccessCallback)
     request_access_cmd = provide(RequestAccessCommand)
+    update_db_data = provide(UpdateDatabaseDataCommand)
+    get_website = provide(GetWebsite)
 
 
 @lru_cache(1)

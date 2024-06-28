@@ -11,6 +11,8 @@ services:
     depends_on:
       searchbot_db:
         condition: service_healthy
+    volumes:
+      - ./src/:/app/
     env_file:
       - .env
     networks:

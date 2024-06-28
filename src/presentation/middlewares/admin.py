@@ -24,5 +24,5 @@ class AdminMiddleware(BaseMiddleware):
             get_admin = await di_container.get(GetAdminByTelegramId)
             admin = await get_admin(user.id)
             if admin is None:
-                return await event.answer(text["permission_denied"])
+                return await event.answer(text.permission_denied)
         return await handler(event, data)

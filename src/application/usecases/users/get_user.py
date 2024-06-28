@@ -44,12 +44,16 @@ class GetAllAdmins:
     user_repository: BaseUserRepository
 
     async def __call__(self, message: types.Message) -> list[User]:
-        admins_list = await self.user_repository.get_all()
-        admins = [user for user in admins_list if user.role == "admin"]
+        users_list = await self.user_repository.get_all()
+        admins = [user for user in users_list if user.role == "admin"]
 
         result = "Список администраторов:\n"
-        for admin in admins:
-            result += " - id: `{0}` username: {1}\n".format(
-                admin.telegram_id, admin.username
-            )
+        if admins:
+            for admin in admins:
+                result += " - id: `{0}` username: {1}\n".format(
+                    admin.telegram_id, admin.username
+                )
+        else:
+            result = "Нет администраторов"
+
         await message.answer(Response(result).value, parse_mode="MarkDownV2")
