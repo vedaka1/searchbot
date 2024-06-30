@@ -12,7 +12,7 @@ class BaseEmployeRepository(ABC):
 
     @abstractmethod
     async def get_by_search_prompt(
-        self, search_prompt: str, limit: int = 10, offset: int = 0
+        self, search_prompt: str, limit: int = 100, offset: int = 0
     ) -> list[Employe]: ...
 
     @abstractmethod
