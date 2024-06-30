@@ -38,7 +38,7 @@ class WebsiteRepository(BaseWebsiteRepository):
         return [Website(**data) for data in result]
 
     def excel_to_db(self, engine: Engine, destination_path: str) -> None:
-        df = pd.read_excel(destination_path)
+        df: pd.DataFrame = pd.read_excel(destination_path)
         employe_columns = [
             "long_name",
             "short_name",
@@ -46,8 +46,6 @@ class WebsiteRepository(BaseWebsiteRepository):
             "contacts_1",
             "contacts_2",
         ]
-        try:
-            df.columns = employe_columns
-            df.to_sql(name="websites", con=engine, if_exists="replace")
-        except Exception as e:
-            print(e)
+
+        df.columns = employe_columns
+        df.to_sql(name="websites", con=engine, if_exists="replace")

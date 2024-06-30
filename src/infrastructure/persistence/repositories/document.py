@@ -36,7 +36,7 @@ class DocumentRepository(BaseDocumentRepository):
         return [Document(**data) for data in result]
 
     def excel_to_db(self, engine: Engine, destination_path: str) -> None:
-        df = pd.read_excel(destination_path, header=2)
+        df: pd.DataFrame = pd.read_excel(destination_path, header=2)
         document_columns = [
             "id",
             "department",

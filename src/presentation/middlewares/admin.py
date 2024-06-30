@@ -1,7 +1,7 @@
 from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from aiogram.types import TelegramObject, User
 
 from application.usecases.users.get_user import GetUserByTelegramId
 from infrastructure.config import settings
@@ -16,7 +16,7 @@ class AdminMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: Dict[str, Any],
     ) -> Any:
-        user = data["event_from_user"]
+        user: User = data["event_from_user"]
         container = get_container()
         if user.id == settings.HEAD_ADMIN_TG_ID:
             return await handler(event, data)

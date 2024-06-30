@@ -7,7 +7,7 @@ from domain.websites.repository import BaseWebsiteRepository
 
 @dataclass
 class GetWebsite:
-    """A class that returns all employees matching the search prompt"""
+    """A class that returns all websites matching the search prompt"""
 
     website_repository: BaseWebsiteRepository
     logger: Logger

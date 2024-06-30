@@ -38,7 +38,7 @@ class EmployeRepository(BaseEmployeRepository):
         return [Employe(**data) for data in result]
 
     def excel_to_db(self, engine: Engine, destination_path: str) -> None:
-        df = pd.read_excel(destination_path)
+        df: pd.DataFrame = pd.read_excel(destination_path)
         employe_columns = [
             "lvl_0_deputy",
             "link_to_deputy",
@@ -65,9 +65,6 @@ class EmployeRepository(BaseEmployeRepository):
             "fax",
             "email",
         ]
-        try:
-            df.columns = employe_columns
-            print(df.columns)
-            df.to_sql(name="employees", con=engine, if_exists="replace")
-        except Exception as e:
-            print(e)
+
+        df.columns = employe_columns
+        df.to_sql(name="employees", con=engine, if_exists="replace")
