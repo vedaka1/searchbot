@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from aiogram import Bot, types
-from aiogram.fsm.context import FSMContext
 from sqlalchemy import Engine
 
 from domain.documents.repository import BaseDocumentRepository
