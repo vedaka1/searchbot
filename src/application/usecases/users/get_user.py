@@ -20,7 +20,7 @@ class GetUserByTelegramId:
     user_repository: BaseUserRepository
     transaction_manager: BaseTransactionManager
 
-    async def __call__(self, user_id: int, username: str) -> User | None:
+    async def __call__(self, user_id: int, username: str = "") -> User | None:
         user = await self.user_repository.get_by_id(user_id)
         if not user:
             user = User.create(telegram_id=user_id, username=username)

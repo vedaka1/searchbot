@@ -5,10 +5,10 @@
 * Users can request admin rights
 ## How to run
 Set environment variables .env
-```
+```python
 BOT_TOKEN=
 
-POSTGRES_HOST=
+POSTGRES_HOST=s 
 POSTGRES_PORT=
 POSTGRES_USER=
 POSTGRES_PASSWORD=
@@ -29,5 +29,5 @@ HEAD_ADMIN_TG_ID=
 * **/update_info** - Update information about employees or documents
 * **/promote_user \<user id\>** - Promote user
 * **/demote_user \<user id\>** - Demote user
-* **/admins <user id>** - List of admins
+* **/admins** - List of admins
 
