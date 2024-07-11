@@ -82,7 +82,10 @@ async def callback_update_info(
     return await callback.message.edit_text(choices[user_choice])
 
 
-@admin_router.message(UpdateFile.file)
+@admin_router.message(
+    UpdateFile.file,
+    F.content_type.in_({"document"}),
+)
 async def upload_file(
     message: types.Message, bot: Bot, state: FSMContext, container: AsyncContainer
 ):
@@ -97,6 +100,6 @@ async def upload_file(
         destination_path = "infrastructure/excel/data.xlsx"
         await bot.download_file(file_path, destination=destination_path)
         update_db_data_interactor = await di_container.get(UpdateDatabaseDataCommand)
-        result = update_db_data_interactor(category, destination_path)
+        result = await update_db_data_interactor(category, destination_path)
         await message.answer(result)
         await state.clear()

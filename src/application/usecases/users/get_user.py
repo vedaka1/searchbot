@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 
 from application.common.admin import HeadAdminID
 from application.common.transaction import BaseTransactionManager
@@ -19,6 +20,7 @@ class GetAllUsers:
 class GetUserByTelegramId:
     user_repository: BaseUserRepository
     transaction_manager: BaseTransactionManager
+    logger: Logger
 
     async def __call__(self, user_id: int, username: str = "") -> User | None:
         user = await self.user_repository.get_by_id(user_id)

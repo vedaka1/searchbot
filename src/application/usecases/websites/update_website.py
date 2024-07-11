@@ -13,4 +13,4 @@ class UpdateWebsites:
     logger: Logger
 
     async def __call__(self, destination_path: str) -> str:
-        self.website_repository.pandas_to_db(destination_path)
+        self.website_repository.excel_to_db(self.engine, destination_path)

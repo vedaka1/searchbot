@@ -1,3 +1,5 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from logging import Logger
 
@@ -16,8 +18,8 @@ class UpdateDatabaseDataCommand:
     engine: Engine
     logger: Logger
 
-    def __call__(self, category: str, destination_path: str) -> str:
-        repository = {
+    async def __call__(self, category: str, destination_path: str) -> str:
+        repository: dict[BaseWebsiteRepository] = {
             "Вебсайт": self.website_repository,
             "Документ": self.document_repository,
             "Сотрудник": self.employe_repository,
@@ -26,10 +28,16 @@ class UpdateDatabaseDataCommand:
         if category not in repository:
             return "Неверная категория"
 
+        lock = asyncio.Lock()
+        await lock.acquire()
         try:
-            repository[category].excel_to_db(
-                engine=self.engine, destination_path=destination_path
-            )
+            with ThreadPoolExecutor() as executor:
+                await asyncio.get_event_loop().run_in_executor(
+                    executor,
+                    repository[category].excel_to_db,
+                    self.engine,
+                    destination_path,
+                )
         except ValueError as e:
             self.logger.error("usecase: UpdateDatabaseData error: {0}".format(e))
             return "Количество столбцов в файле не совпадает со столбцами в базе данных"
@@ -38,4 +46,6 @@ class UpdateDatabaseDataCommand:
             self.logger.error("usecase: UpdateDatabaseData error: {0}".format(e))
             return "Не удалось обновить информацию"
 
-        return "Данные успешно загружены"
+        finally:
+            lock.release()
+            return "Данные успешно загружены"
