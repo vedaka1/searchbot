@@ -5,10 +5,10 @@ from logging import Logger
 
 from sqlalchemy import Engine
 
+from domain.common.enums import Categories
 from domain.documents.repository import BaseDocumentRepository
 from domain.employees.repository import BaseEmployeRepository
 from domain.websites.repository import BaseWebsiteRepository
-from domain.common.enums import Categories
 
 
 @dataclass
@@ -38,6 +38,8 @@ class UpdateDatabaseDataCommand:
                     self.engine,
                     destination_path,
                 )
+            return "Данные успешно загружены"
+
         except ValueError as e:
             self.logger.error("usecase: UpdateDatabaseData error: {0}".format(e))
             return "Количество столбцов в файле не совпадает со столбцами в базе данных"
@@ -48,4 +50,3 @@ class UpdateDatabaseDataCommand:
 
         finally:
             lock.release()
-            return "Данные успешно загружены"
