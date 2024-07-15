@@ -18,6 +18,9 @@ class GetDocument:
             documents = await self.document_repository.get_by_search_prompt(
                 search_prompt=search_prompt
             )
+            count = await self.document_repository.get_count(
+                search_prompt=search_prompt
+            )
         except Exception as e:
             self.logger.error("usecase: GetDocument error: {0}".format(e))
             return "Возникла ошибка"
@@ -25,7 +28,7 @@ class GetDocument:
         if not documents:
             return "Записей о документах не найдено"
 
-        result = "Найдено записей: {0}\n".format(len(documents))
+        result = "Найдено записей: {0}\n".format(count)
         separator = "<-------->\n"
         for key, document in enumerate(documents):
             document_body = separator

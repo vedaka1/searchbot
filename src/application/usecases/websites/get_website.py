@@ -18,6 +18,7 @@ class GetWebsite:
             websites = await self.website_repository.get_by_search_prompt(
                 search_prompt=search_prompt
             )
+            count = await self.website_repository.get_count(search_prompt=search_prompt)
         except Exception as e:
             self.logger.error("usecase: GetWebsite error: {0}".format(e))
             return "Возникла ошибка"
@@ -25,7 +26,7 @@ class GetWebsite:
         if not websites:
             return "Записей о вебсайтах не найдено"
 
-        result = "Найдено записей: {0}\n".format(len(websites))
+        result = "Найдено записей: {0}\n".format(count)
         separator = "<-------->\n"
         for key, website in enumerate(websites):
             website_body = separator

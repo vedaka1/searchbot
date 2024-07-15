@@ -18,6 +18,7 @@ class GetEmploye:
             employes = await self.employe_repository.get_by_search_prompt(
                 search_prompt=search_prompt
             )
+            count = await self.employe_repository.get_count(search_prompt=search_prompt)
         except Exception as e:
             self.logger.error("usecase: GetEmploye error: {0}".format(e))
             return "Возникла ошибка"
@@ -25,7 +26,7 @@ class GetEmploye:
         if not employes:
             return "Записей о сотрудниках не найдено"
 
-        result = "Найдено записей: {0}\n".format(len(employes))
+        result = "Найдено записей: {0}\n".format(count)
         separator = "<-------->\n"
         for key, employe in enumerate(employes):
             employe_body = separator

@@ -1,14 +1,16 @@
 from aiogram import types
 
+from domain.common.enums import Categories
+
 
 class Keyboards:
-    categories = ["Сотрудник", "Документ", "Вебсайт"]
+    categories = Categories
 
     def update_category_keyboard(self):
         buttons = [
             [
                 types.InlineKeyboardButton(
-                    text=search_type, callback_data=f"update_{search_type}"
+                    text=search_type.value, callback_data=f"update_{search_type.value}"
                 )
             ]
             for search_type in self.categories
@@ -19,7 +21,7 @@ class Keyboards:
         buttons = [
             [
                 types.InlineKeyboardButton(
-                    text=search_type, callback_data=f"search_{search_type}"
+                    text=search_type.value, callback_data=f"search_{search_type.value}"
                 )
             ]
             for search_type in self.categories

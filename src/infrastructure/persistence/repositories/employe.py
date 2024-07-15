@@ -37,6 +37,21 @@ class EmployeRepository(BaseEmployeRepository):
         result = result.mappings().all()
         return [Employe(**data) for data in result]
 
+    async def get_count(self, search_prompt: str) -> int:
+        query = text(
+            """
+            SELECT COUNT(*) FROM employees
+            WHERE CONCAT(employees.lastname, ' ', employees.firstname_patronymic) ILIKE :search_prompt
+            or CONCAT(employees.firstname_patronymic, ' ', employees.lastname) ILIKE :search_prompt
+            or employees.position ILIKE :search_prompt
+            """
+        )
+        result = await self.session.execute(
+            query,
+            {"search_prompt": str("%" + search_prompt + "%")},
+        )
+        return result.scalar_one()
+
     def excel_to_db(self, engine: Engine, destination_path: str) -> None:
         df: pd.DataFrame = pd.read_excel(destination_path)
         employe_columns = [

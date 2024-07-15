@@ -8,6 +8,7 @@ from sqlalchemy import Engine
 from domain.documents.repository import BaseDocumentRepository
 from domain.employees.repository import BaseEmployeRepository
 from domain.websites.repository import BaseWebsiteRepository
+from domain.common.enums import Categories
 
 
 @dataclass
@@ -19,12 +20,11 @@ class UpdateDatabaseDataCommand:
     logger: Logger
 
     async def __call__(self, category: str, destination_path: str) -> str:
-        repository: dict[BaseWebsiteRepository] = {
-            "Вебсайт": self.website_repository,
-            "Документ": self.document_repository,
-            "Сотрудник": self.employe_repository,
+        repository: dict[str, BaseEmployeRepository] = {
+            Categories.EMPLOYE.value: self.employe_repository,
+            Categories.DOCUMENT.value: self.document_repository,
+            Categories.WEBSITE.value: self.website_repository,
         }
-
         if category not in repository:
             return "Неверная категория"
 

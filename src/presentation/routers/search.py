@@ -15,6 +15,7 @@ from domain.common.response import Response
 from infrastructure.config import settings
 from presentation.common.keyboards import kb
 from presentation.texts.text import text
+from domain.common.enums import Categories
 
 logger = getLogger()
 search_router = Router()
@@ -108,9 +109,9 @@ async def callback_search(
     user_choice = callback.data.split("_")[1]
     await state.update_data(category=user_choice)
     categories = {
-        "Сотрудник": "Введите ФИО или должность сотрудника",
-        "Документ": "Введите название или реквизиты документа",
-        "Вебсайт": "Введите название, домен или ИОГВ вебсайта",
+        Categories.EMPLOYE.value: "Введите ФИО или должность сотрудника",
+        Categories.DOCUMENT.value: "Введите название или реквизиты документа",
+        Categories.WEBSITE.value: "Введите название, домен или ИОГВ вебсайта",
     }
     await callback.message.edit_text(categories[user_choice])
 
@@ -121,9 +122,9 @@ async def search(message: types.Message, container: AsyncContainer, state: FSMCo
     data = await state.get_data()
     category = data.get("category")
     categories = {
-        "Сотрудник": GetEmploye,
-        "Документ": GetDocument,
-        "Вебсайт": GetWebsite,
+        Categories.EMPLOYE.value: GetEmploye,
+        Categories.DOCUMENT.value: GetDocument,
+        Categories.WEBSITE.value: GetWebsite,
     }
     async with container() as di_container:
         get_item_interactor = await di_container.get(categories[category])

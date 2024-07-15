@@ -35,6 +35,19 @@ class DocumentRepository(BaseDocumentRepository):
         result = result.mappings().all()
         return [Document(**data) for data in result]
 
+    async def get_count(self, search_prompt: str) -> int:
+        query = text(
+            """
+            SELECT COUNT(*) FROM documents
+            WHERE documents.credentials ILIKE :search_prompt or documents.title ILIKE :search_prompt
+            """
+        )
+        result = await self.session.execute(
+            query,
+            {"search_prompt": str("%" + search_prompt + "%")},
+        )
+        return result.scalar_one()
+
     def excel_to_db(self, engine: Engine, destination_path: str) -> None:
         df: pd.DataFrame = pd.read_excel(destination_path, header=2)
         document_columns = [

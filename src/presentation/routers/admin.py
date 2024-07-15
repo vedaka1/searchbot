@@ -10,6 +10,7 @@ from domain.common.response import Response
 from presentation.common.keyboards import kb
 from presentation.middlewares.admin import AdminMiddleware
 from presentation.texts.text import text
+from domain.common.enums import Categories
 
 admin_router = Router()
 admin_router.message.middleware(AdminMiddleware())
@@ -73,9 +74,9 @@ async def callback_update_info(
 ):
     user_choice = callback.data.split("_")[1]
     choices = {
-        "Сотрудник": "Отправьте файл с сотрудниками в формате .xlsx",
-        "Документ": "Отправьте файл с документами в формате .xlsx",
-        "Вебсайт": "Отправьте файл с вебсайтами в формате .xlsx",
+        Categories.EMPLOYE.value: "Отправьте файл с сотрудниками в формате .xlsx",
+        Categories.DOCUMENT.value: "Отправьте файл с документами в формате .xlsx",
+        Categories.WEBSITE.value: "Отправьте файл с вебсайтами в формате .xlsx",
     }
     await state.update_data(category=user_choice)
     await state.set_state(UpdateFile.file)
