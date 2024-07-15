@@ -13,4 +13,4 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-root --no-interaction --no-ansi
 
 COPY src/ .
-COPY ./.env.production ./.env
+COPY .env ./

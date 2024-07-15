@@ -12,7 +12,7 @@ services:
       searchbot_db:
         condition: service_healthy
     env_file:
-      - .env.production
+      - .env
     networks:
       - internal
     command: sh -c "alembic upgrade head && python main.py"
@@ -22,7 +22,7 @@ services:
     image: postgres:15.1
     hostname: searchbot_db
     env_file:
-      - .env.production
+      - .env
     volumes:
       - searchbot_data:/var/lib/postgresql/data/
     networks:

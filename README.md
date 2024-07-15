@@ -4,12 +4,12 @@
 * Administators can update information
 * Users can request admin rights
 ## How to run
-Set environment variables in .env for local development
+Set environment variables in `.env`
 ```python
 #.env
 BOT_TOKEN=
 
-POSTGRES_HOST=localhost
+POSTGRES_HOST=searchbot_db
 POSTGRES_PORT=5432
 POSTGRES_USER=
 POSTGRES_PASSWORD=
@@ -17,13 +17,9 @@ POSTGRES_DB=
 
 HEAD_ADMIN_TG_ID=
 ```
-Set the same variables in .env.production for deployment, except POSTGRES_HOST
-```python
-#.env.production
-POSTGRES_HOST=searchbot_db
-```
 ### Dev
 * Run `docker compose up -d` or `make app` in the project directory
+* Now you can run `docker compose restart searchbot ` to restart bot and apply your code changes
 ### Production
 * Run `docker compose -f docker-compose.production.yml up -d` or `make prod` in the project directory
 
