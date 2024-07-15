@@ -4,17 +4,23 @@
 * Administators can update information
 * Users can request admin rights
 ## How to run
-Set environment variables .env
+Set environment variables in .env for local development
 ```python
+#.env
 BOT_TOKEN=
 
-POSTGRES_HOST=s 
-POSTGRES_PORT=
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
 POSTGRES_USER=
 POSTGRES_PASSWORD=
 POSTGRES_DB=
 
 HEAD_ADMIN_TG_ID=
+```
+Set the same variables in .env.production for deployment, except POSTGRES_HOST
+```python
+#.env.production
+POSTGRES_HOST=searchbot_db
 ```
 ### Dev
 * Run `docker compose up -d` or `make app` in the project directory
